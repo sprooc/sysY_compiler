@@ -18,19 +18,29 @@ std::any IRGenVisitor::visitCompUnit(SysYParser::CompUnitContext* ctx) {
 std::any IRGenVisitor::visitFuncDef(SysYParser::FuncDefContext* ctx) {
   FunctionIR* function_ir = new FunctionIR();
   function_ir->name = ctx->funcName()->IDENT()->getText();
-  BasicBlockIR* basic_block = new BasicBlockIR();
-  basic_block->name = "entry";
-  function_ir->basic_blocks.push_back(
-      std::unique_ptr<BasicBlockIR>(basic_block));
-  ir_module.setCurrBasicBlock(basic_block);
+  Label* entry_label = new Label("entry");
+  BasicBlockIR* basic_block = new BasicBlockIR(entry_label);
   ir_module.pushFunction(function_ir);
+  ir_module.pushBasicBlock(basic_block);
+
   visitBlock(ctx->block());
   return nullptr;
 }
 
 std::any IRGenVisitor::visitBlock(SysYParser::BlockContext* ctx) {
   ir_module.pushScope();
-  visitChildren(ctx);
+  for (auto* block_item : ctx->blockItem()) {
+    auto* stmt = block_item->stmt();
+    if (stmt && (stmt->ifElseStmt() || stmt->whileStmt())) {
+      Label* label = new Label();
+      ir_module.pushNextLabel(label);
+      visitStmt(stmt);
+      ir_module.popNextLabel();
+      ir_module.pushBasicBlock(new BasicBlockIR(label));
+    } else {
+      visitBlockItem(block_item);
+    }
+  }
   ir_module.popScope();
   return nullptr;
 }
@@ -42,15 +52,22 @@ std::any IRGenVisitor::visitStmt(SysYParser::StmtContext* ctx) {
     ValueIR* lval = ir_module.getVar(var);
     StoreInstrIR* store_ir = new StoreInstrIR(rval, lval);
     ir_module.pushValueToBasicBlock((ValueIR*)store_ir);
-
   } else if (ctx->RETURN()) {
     ReturnValueIR* ret_ir = new ReturnValueIR();
     ret_ir->ret_value = std::any_cast<ValueIR*>(visitExp(ctx->exp()));
-    ir_module.pushValueToBasicBlock((ValueIR*)ret_ir);
+    ir_module.endBasicBlock((ValueIR*)ret_ir);
   } else if (ctx->block()) {
     visitBlock((ctx->block()));
-  } else if(ctx->exp()) {
+  } else if (ctx->exp()) {
     visitExp(ctx->exp());
+  } else if (ctx->ifElseStmt()) {
+    return visitIfElseStmt(ctx->ifElseStmt());
+  } else if (ctx->whileStmt()) {
+    return visitWhileStmt(ctx->whileStmt());
+  } else if (ctx->BREAK()) {
+    ir_module.endBasicBlock(new JumpInstrIR(ir_module.peekBreakStack()));
+  } else if (ctx->CONTINUE()) {
+    ir_module.endBasicBlock(new JumpInstrIR(ir_module.peekContinueStack()));
   }
   return nullptr;
 }
@@ -176,6 +193,8 @@ std::any IRGenVisitor::visitMulExp(SysYParser::MulExpContext* ctx) {
 }
 
 std::any IRGenVisitor::visitAddExp(SysYParser::AddExpContext* ctx) {
+  ir_module.pushState(EXP);
+  ValueIR* ret;
   if (ctx->addExp()) {
     ValueIR* lvalue = std::any_cast<ValueIR*>(visitAddExp(ctx->addExp()));
     ValueIR* rvalue = std::any_cast<ValueIR*>(visitMulExp(ctx->mulExp()));
@@ -189,30 +208,36 @@ std::any IRGenVisitor::visitAddExp(SysYParser::AddExpContext* ctx) {
                          ((IntegerValueIR*)rvalue)->number;
       }
       ir_module.pushValueToBasicBlock((ValueIR*)int_ir);
-      return (ValueIR*)int_ir;
-    }
-    BinaryOpInstrIR* bin_ir = new BinaryOpInstrIR();
-    if (ctx->PLUS()) {
-      bin_ir->op_type = OP_ADD;
-    } else if (ctx->MINUS()) {
-      bin_ir->op_type = OP_SUB;
+      ret = (ValueIR*)int_ir;
     } else {
-      assert(0);
+      BinaryOpInstrIR* bin_ir = new BinaryOpInstrIR();
+      if (ctx->PLUS()) {
+        bin_ir->op_type = OP_ADD;
+      } else if (ctx->MINUS()) {
+        bin_ir->op_type = OP_SUB;
+      } else {
+        assert(0);
+      }
+      bin_ir->left = lvalue;
+      bin_ir->right = rvalue;
+      bin_ir->name = getTmp();
+      ir_module.pushValueToBasicBlock((ValueIR*)bin_ir);
+      ret = (ValueIR*)bin_ir;
     }
-    bin_ir->left = lvalue;
-    bin_ir->right = rvalue;
-    bin_ir->name = getTmp();
-    ir_module.pushValueToBasicBlock((ValueIR*)bin_ir);
-    return (ValueIR*)bin_ir;
   } else {
-    return visitMulExp(ctx->mulExp());
+    ret = std::any_cast<ValueIR*>(visitMulExp(ctx->mulExp()));
   }
+  ir_module.popState();
+  return ret;
 }
 
 std::any IRGenVisitor::visitRelExp(SysYParser::RelExpContext* ctx) {
+  ValueIR* ret;
   if (ctx->relExp()) {
+    ir_module.pushState(EXP);
     ValueIR* lvalue = std::any_cast<ValueIR*>(visitRelExp(ctx->relExp()));
     ValueIR* rvalue = std::any_cast<ValueIR*>(visitAddExp(ctx->addExp()));
+    ir_module.popState();
     if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
       IntegerValueIR* int_ir = new IntegerValueIR();
       if (ctx->LT()) {
@@ -229,34 +254,46 @@ std::any IRGenVisitor::visitRelExp(SysYParser::RelExpContext* ctx) {
                          ((IntegerValueIR*)rvalue)->number;
       }
       ir_module.pushValueToBasicBlock((ValueIR*)int_ir);
-      return (ValueIR*)int_ir;
-    }
-    BinaryOpInstrIR* rel_ir = new BinaryOpInstrIR();
-    if (ctx->LT()) {
-      rel_ir->op_type = OP_LT;
-    } else if (ctx->GT()) {
-      rel_ir->op_type = OP_GT;
-    } else if (ctx->GE()) {
-      rel_ir->op_type = OP_GE;
-    } else if (ctx->LE()) {
-      rel_ir->op_type = OP_LE;
+      ret = (ValueIR*)int_ir;
     } else {
-      assert(0);
+      BinaryOpInstrIR* rel_ir = new BinaryOpInstrIR();
+      if (ctx->LT()) {
+        rel_ir->op_type = OP_LT;
+      } else if (ctx->GT()) {
+        rel_ir->op_type = OP_GT;
+      } else if (ctx->GE()) {
+        rel_ir->op_type = OP_GE;
+      } else if (ctx->LE()) {
+        rel_ir->op_type = OP_LE;
+      } else {
+        assert(0);
+      }
+      rel_ir->left = lvalue;
+      rel_ir->right = rvalue;
+      rel_ir->name = getTmp();
+      ir_module.pushValueToBasicBlock((ValueIR*)rel_ir);
+      ret = (ValueIR*)rel_ir;
     }
-    rel_ir->left = lvalue;
-    rel_ir->right = rvalue;
-    rel_ir->name = getTmp();
-    ir_module.pushValueToBasicBlock((ValueIR*)rel_ir);
-    return (ValueIR*)rel_ir;
   } else {
-    return visitAddExp(ctx->addExp());
+    ret = std::any_cast<ValueIR*>(visitAddExp(ctx->addExp()));
+  }
+  if (ir_module.inCond()) {
+    BrInstrIR* br_ir = new BrInstrIR(ret, ir_module.peekTrueLabel(),
+                                     ir_module.peekFalseLabel());
+    ir_module.endBasicBlock((ValueIR*)br_ir);
+    return nullptr;
+  } else {
+    return ret;
   }
 }
 
 std::any IRGenVisitor::visitEqExp(SysYParser::EqExpContext* ctx) {
   if (ctx->eqExp()) {
+    ir_module.pushState(EXP);
     ValueIR* lvalue = std::any_cast<ValueIR*>(visitEqExp(ctx->eqExp()));
     ValueIR* rvalue = std::any_cast<ValueIR*>(visitRelExp(ctx->relExp()));
+    ir_module.popState();
+    ValueIR* ret;
     if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
       IntegerValueIR* int_ir = new IntegerValueIR();
       if (ctx->EQ()) {
@@ -267,21 +304,30 @@ std::any IRGenVisitor::visitEqExp(SysYParser::EqExpContext* ctx) {
                          ((IntegerValueIR*)rvalue)->number;
       }
       ir_module.pushValueToBasicBlock((ValueIR*)int_ir);
-      return (ValueIR*)int_ir;
-    }
-    BinaryOpInstrIR* eq_ir = new BinaryOpInstrIR();
-    if (ctx->EQ()) {
-      eq_ir->op_type = OP_EQU;
-    } else if (ctx->NEQ()) {
-      eq_ir->op_type = OP_NEQ;
+      ret = (ValueIR*)int_ir;
     } else {
-      assert(0);
+      BinaryOpInstrIR* eq_ir = new BinaryOpInstrIR();
+      if (ctx->EQ()) {
+        eq_ir->op_type = OP_EQU;
+      } else if (ctx->NEQ()) {
+        eq_ir->op_type = OP_NEQ;
+      } else {
+        assert(0);
+      }
+      eq_ir->left = lvalue;
+      eq_ir->right = rvalue;
+      eq_ir->name = getTmp();
+      ir_module.pushValueToBasicBlock((ValueIR*)eq_ir);
+      ret = (ValueIR*)eq_ir;
     }
-    eq_ir->left = lvalue;
-    eq_ir->right = rvalue;
-    eq_ir->name = getTmp();
-    ir_module.pushValueToBasicBlock((ValueIR*)eq_ir);
-    return (ValueIR*)eq_ir;
+    if (ir_module.inCond()) {
+      BrInstrIR* br_ir = new BrInstrIR(ret, ir_module.peekTrueLabel(),
+                                       ir_module.peekFalseLabel());
+      ir_module.endBasicBlock((ValueIR*)br_ir);
+      return ret;
+    } else {
+      return ret;
+    }
   } else {
     return visitRelExp(ctx->relExp());
   }
@@ -289,6 +335,15 @@ std::any IRGenVisitor::visitEqExp(SysYParser::EqExpContext* ctx) {
 
 std::any IRGenVisitor::visitLAndExp(SysYParser::LAndExpContext* ctx) {
   if (ctx->lAndExp()) {
+    if (ir_module.inCond()) {
+      Label* b1_true = new Label();
+      ir_module.pushTrueLabel(b1_true);
+      visitLAndExp(ctx->lAndExp());
+      ir_module.popTrueLabel();
+      ir_module.pushBasicBlock(new BasicBlockIR(b1_true));
+      visitEqExp(ctx->eqExp());
+      return nullptr;
+    }
     ValueIR* lvalue = std::any_cast<ValueIR*>(visitLAndExp(ctx->lAndExp()));
     ValueIR* rvalue = std::any_cast<ValueIR*>(visitEqExp(ctx->eqExp()));
     if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
@@ -330,6 +385,15 @@ std::any IRGenVisitor::visitLAndExp(SysYParser::LAndExpContext* ctx) {
 
 std::any IRGenVisitor::visitLOrExp(SysYParser::LOrExpContext* ctx) {
   if (ctx->lOrExp()) {
+    if (ir_module.inCond()) {
+      Label* b1_false = new Label();
+      ir_module.pushFalseLabel(b1_false);
+      visitLOrExp(ctx->lOrExp());
+      ir_module.popFalseLabel();
+      ir_module.pushBasicBlock(new BasicBlockIR(b1_false));
+      visitLAndExp(ctx->lAndExp());
+      return nullptr;
+    }
     ValueIR* lvalue = std::any_cast<ValueIR*>(visitLOrExp(ctx->lOrExp()));
     ValueIR* rvalue = std::any_cast<ValueIR*>(visitLAndExp(ctx->lAndExp()));
     if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
@@ -432,4 +496,71 @@ std::any IRGenVisitor::visitInitVal(SysYParser::InitValContext* ctx) {
     // TODO
     return visitChildren(ctx);
   }
+}
+
+std::any IRGenVisitor::visitIfElseStmt(SysYParser::IfElseStmtContext* ctx) {
+  if (ctx->ELSE()) {
+    Label* true_label = new Label();
+    Label* false_label = new Label();
+    Label* end_label = ir_module.peekNextLabel();
+    ir_module.pushTrueLabel(true_label);
+    ir_module.pushFalseLabel(false_label);
+    ir_module.pushState(COND);
+    visitCond(ctx->cond());
+    ir_module.popState();
+    ir_module.popFalseLabel();
+    ir_module.popTrueLabel();
+    BasicBlockIR* then_bb = new BasicBlockIR(true_label);
+    ir_module.pushBasicBlock(then_bb);
+    ir_module.pushNextLabel(end_label);
+    visitStmt(ctx->stmt(0));
+    JumpInstrIR* jump_ir = new JumpInstrIR(end_label);
+    ir_module.endBasicBlock(jump_ir);
+    BasicBlockIR* else_bb = new BasicBlockIR(false_label);
+    ir_module.pushBasicBlock(else_bb);
+    visitStmt(ctx->stmt(1));
+    ir_module.popNextLabel();
+    ir_module.endBasicBlock(new JumpInstrIR(end_label));
+  } else {
+    Label* true_label = new Label();
+    Label* false_label = ir_module.peekNextLabel();
+    ir_module.pushTrueLabel(true_label);
+    ir_module.pushFalseLabel(false_label);
+    ir_module.pushState(COND);
+    visitCond(ctx->cond());
+    ir_module.popState();
+    ir_module.popFalseLabel();
+    ir_module.popTrueLabel();
+    BasicBlockIR* then_bb = new BasicBlockIR(true_label);
+    ir_module.pushBasicBlock(then_bb);
+    visitStmt(ctx->stmt(0));
+    JumpInstrIR* jump_ir = new JumpInstrIR(false_label);
+    ir_module.endBasicBlock(jump_ir);
+  }
+  return nullptr;
+}
+
+std::any IRGenVisitor::visitWhileStmt(SysYParser::WhileStmtContext* ctx) {
+  Label* begin = new Label();
+  Label* true_label = new Label();
+  Label* false_label = ir_module.peekNextLabel();
+  ir_module.pushTrueLabel(true_label);
+  ir_module.pushFalseLabel(false_label);
+  ir_module.endBasicBlock(new JumpInstrIR(begin));
+  ir_module.pushBasicBlock(new BasicBlockIR(begin));
+  ir_module.pushState(COND);
+  visitCond(ctx->cond());
+  ir_module.popState();
+  ir_module.popTrueLabel();
+  ir_module.popFalseLabel();
+  ir_module.pushBasicBlock(new BasicBlockIR(true_label));
+  ir_module.pushBreakStack(ir_module.peekNextLabel());
+  ir_module.pushContinueStack(begin);
+  ir_module.pushNextLabel(begin);
+  visitStmt(ctx->stmt());
+  ir_module.popNextLabel();
+  ir_module.popContinueStack();
+  ir_module.popBreakStack();
+  ir_module.endBasicBlock(new JumpInstrIR(begin));
+  return nullptr;
 }

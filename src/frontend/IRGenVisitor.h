@@ -1,3 +1,6 @@
+#ifndef IRGEN_H
+#define IRGEN_H
+
 #include <assert.h>
 
 #include <iostream>
@@ -63,4 +66,9 @@ class IRGenVisitor : public SysYParserBaseVisitor {
   virtual std::any visitVarDef(SysYParser::VarDefContext* ctx) override;
 
   virtual std::any visitInitVal(SysYParser::InitValContext* ctx) override;
+
+  virtual std::any visitIfElseStmt(SysYParser::IfElseStmtContext* ctx) override;
+
+  virtual std::any visitWhileStmt(SysYParser::WhileStmtContext* ctx) override;
 };
+#endif

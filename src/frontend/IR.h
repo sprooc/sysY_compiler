@@ -1,4 +1,6 @@
-#pragma once
+#ifndef IR_H
+#define IR_H
+
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -6,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+#include "Label.h"
 #include "Type.h"
 
 extern std::ofstream out_file;
@@ -27,7 +30,9 @@ typedef enum {
   IRV_VARIABLE,
   IRV_ALLOC,
   IRV_LOAD,
-  IRV_STORE
+  IRV_STORE,
+  IRV_BR,
+  IRV_JUMP
 } ValueTag;
 
 typedef enum {
@@ -211,13 +216,41 @@ class ReturnValueIR : public InstrIR {
   }
 };
 
+class BrInstrIR : public InstrIR {
+ public:
+  ValueIR* cond;
+  Label* true_label;
+  Label* false_label;
+  BrInstrIR(ValueIR* c, Label* t, Label* f)
+      : cond(c), true_label(t), false_label(f) {}
+  void PrintIR() const override {
+    out_file << "br ";
+    cond->PrintName();
+    out_file << ", " << true_label->toString() << ", "
+             << false_label->toString();
+  }
+};
+
+class JumpInstrIR : public InstrIR {
+ public:
+  Label* label;
+  JumpInstrIR(Label* l) : label(l) {}
+  void PrintIR() const override { out_file << "jump " << label->toString(); }
+};
+
 class BasicBlockIR : public BaseIR {
  public:
-  std::string name;
+  std::unique_ptr<Label> label;
   std::vector<std::unique_ptr<ValueIR>> values;
-
+  bool is_end = false;
+  BasicBlockIR(Label* label) : label(std::unique_ptr<Label>(label)) {
+    label->basic_block = this;
+  }
   void PrintIR() const override {
-    out_file << "%" << name << ":" << std::endl;
+    // if (values.empty()) {
+    //   return;
+    // }
+    out_file << label->toString() << ":" << std::endl;
     for (auto& value : values) {
       if (!value->isInstr()) {
         continue;
@@ -263,3 +296,5 @@ class ProgramIR : public BaseIR {
 };
 
 // class ConstIntIR :public BaseIR {}
+
+#endif
