@@ -3,6 +3,7 @@
 #include <vector>
 /*-------------- Type --------------------*/
 typedef enum {
+  IRT_VOID,
   IRT_INT32,
   IRT_FLOAT,
   IRT_ARRAY,
@@ -12,10 +13,13 @@ typedef enum {
 
 class Type {
  public:
+  Type() {}
   Type(TypeTag t) : tag(t) {}
   TypeTag tag;
   std::string toString() const {
     switch (tag) {
+      case IRT_VOID:
+        return "";
       case IRT_INT32:
         return "i32";
       case IRT_FLOAT:
@@ -28,6 +32,10 @@ class Type {
         return "errorType";
     }
   }
+};
+class VoidType : public Type {
+ public:
+  VoidType() : Type(IRT_VOID) {}
 };
 
 class Int32Type : public Type {

@@ -32,7 +32,9 @@ typedef enum {
   IRV_LOAD,
   IRV_STORE,
   IRV_BR,
-  IRV_JUMP
+  IRV_JUMP,
+  IRV_PARAM,
+  IRV_CALL
 } ValueTag;
 
 typedef enum {
@@ -76,11 +78,27 @@ class InstrIR : public ValueIR {
   void PrintName() const override {};
 };
 
+class ParamIR : public ValueIR {
+ public:
+  std::string name;
+  Type type;
+  ParamIR() : ValueIR(IRV_PARAM) {}
+  ParamIR(std::string& n) : ValueIR(IRV_PARAM), name(n) {}
+  void PrintName() const override { out_file << "@" << name; };
+  void PrintIR() const override {
+    out_file << "@" << name << ": " << type.toString();
+  };
+};
+
 class VariableIR : public ValueIR {
  public:
   std::string name;
   int id;
   Type type;
+  VariableIR() : ValueIR(ValueTag::IRV_VARIABLE) { id = id_alloc++; }
+  VariableIR(std::string& n) : ValueIR(ValueTag::IRV_VARIABLE), name(n) {
+    id = id_alloc++;
+  }
   VariableIR(Type t, std::string n)
       : ValueIR(ValueTag::IRV_VARIABLE), type(t), name(n) {
     id = id_alloc++;
@@ -208,7 +226,8 @@ class ReturnValueIR : public InstrIR {
   ValueIR* ret_value;
   void PrintIR() const override {
     out_file << "ret ";
-    if (ret_value->tag == IRV_INTEGER) {
+    if (!ret_value) {
+    } else if (ret_value->tag == IRV_INTEGER) {
       ret_value->PrintIR();
     } else {
       out_file << ((BinaryOpInstrIR*)ret_value)->name;
@@ -266,21 +285,59 @@ class FunctionIR : public BaseIR {
  public:
   // FunctionIR& operator=(FunctionIR&&) = default;
   // ~FunctionIR() override = default;
-  // std::unique_ptr<Type> ret_type;
+  std::unique_ptr<Type> ret_type;
   std::string name;
-  // std::vector<std::unique_ptr<struct Type>> params;
+  std::vector<std::unique_ptr<ParamIR>> params;
   std::vector<std::unique_ptr<BasicBlockIR>> basic_blocks;
+  void PrintName() const { out_file << "@" << name; }
 
   void PrintIR() const override {
-    if (name != "main") {
-      std::cerr << "error: syntax error";
-      exit(1);
+    out_file << "fun @" << name << "(";
+    int n_param = params.size();
+    for (int i = 0; i < n_param; i++) {
+      params[i]->PrintIR();
+      if (i != n_param - 1) {
+        out_file << ", ";
+      }
     }
-    out_file << "fun @" << name << "(): i32 {" << std::endl;
+    out_file << ")";
+    if (ret_type->tag == IRT_INT32) {
+      out_file << ": i32";
+    }
+    out_file << " {" << std::endl;
     for (auto& basic_block : basic_blocks) {
       basic_block->PrintIR();
     }
     out_file << "}" << std::endl;
+  }
+};
+
+class CallInstrIR : public InstrIR {
+ public:
+  std::string name;
+  FunctionIR* function;
+  std::vector<ValueIR*> params;
+  CallInstrIR() { this->tag = IRV_CALL; }
+  CallInstrIR(FunctionIR* f, std::string n) : function(f), name(n) {
+    this->tag = IRV_CALL;
+  }
+
+  void PrintName() const override { out_file << name; }
+  void PrintIR() const override {
+    if (function->ret_type->tag != IRT_VOID) {
+      out_file << name << " = ";
+    }
+    out_file << "call ";
+    function->PrintName();
+    out_file << "(";
+    int n_param = params.size();
+    for (int i = 0; i < n_param; i++) {
+      params[i]->PrintName();
+      if (i != n_param - 1) {
+        out_file << ", ";
+      }
+    }
+    out_file << ")";
   }
 };
 

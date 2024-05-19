@@ -1,21 +1,9 @@
+fun @f() {
+%L0:
+  ret 
+}
 fun @main(): i32 {
 %entry:
-  @i_0 = alloc i32
-  store 0, @i_0
-  jump %L1
-%L1:
-  %0 = load @i_0
-  %1 = lt %0, 10
-  br %1, %L2, %L0
-%L2:
-  store 20, @i_0
-  jump %L1
-%L3:
-  %2 = load @i_0
-  %3 = add %2, 1
-  store %3, @i_0
-  jump %L1
-%L0:
-  %4 = load @i_0
-  ret %4
+  call @f()
+  ret 1
 }

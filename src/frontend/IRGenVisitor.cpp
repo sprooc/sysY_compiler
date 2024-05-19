@@ -18,12 +18,45 @@ std::any IRGenVisitor::visitCompUnit(SysYParser::CompUnitContext* ctx) {
 std::any IRGenVisitor::visitFuncDef(SysYParser::FuncDefContext* ctx) {
   FunctionIR* function_ir = new FunctionIR();
   function_ir->name = ctx->funcName()->IDENT()->getText();
-  Label* entry_label = new Label("entry");
+  if (ctx->funcType()->VOID()) {
+    function_ir->ret_type = std::make_unique<VoidType>();
+  } else if (ctx->funcType()->INT()) {
+    function_ir->ret_type = std::make_unique<Int32Type>();
+  }
+  Label* entry_label;
+  if (function_ir->name != "main") {
+    entry_label = new Label();
+  } else {
+    entry_label = new Label("entry");
+  }
   BasicBlockIR* basic_block = new BasicBlockIR(entry_label);
   ir_module.pushFunction(function_ir);
   ir_module.pushBasicBlock(basic_block);
-
-  visitBlock(ctx->block());
+  // Funtion params scope
+  ir_module.pushScope();
+  if (ctx->funcFParams()) {
+    for (auto* param : ctx->funcFParams()->funcFParam()) {
+      std::string var_name = param->IDENT()->getText();
+      ParamIR* param_ir = new ParamIR(var_name);
+      if (param->bType()->INT()) {
+        param_ir->type = Int32Type();
+      }
+      function_ir->params.push_back(std::unique_ptr<ParamIR>(param_ir));
+      VariableIR* var_ir = new VariableIR(param_ir->type, var_name);
+      AllocInstrIR* alloc_ir = new AllocInstrIR(var_ir);
+      ir_module.putVar(var_ir->name, alloc_ir);
+      ir_module.pushValueToBasicBlock(alloc_ir);
+      StoreInstrIR* store_ir = new StoreInstrIR(param_ir, alloc_ir);
+      ir_module.pushValueToBasicBlock(store_ir);
+    }
+  }
+  if (ctx->block()->blockItem().empty()) {
+    ReturnValueIR* empty_ret = new ReturnValueIR();
+    ir_module.endBasicBlock(empty_ret);
+  } else {
+    visitBlock(ctx->block());
+  }
+  ir_module.popScope();
   return nullptr;
 }
 
@@ -54,7 +87,11 @@ std::any IRGenVisitor::visitStmt(SysYParser::StmtContext* ctx) {
     ir_module.pushValueToBasicBlock((ValueIR*)store_ir);
   } else if (ctx->RETURN()) {
     ReturnValueIR* ret_ir = new ReturnValueIR();
-    ret_ir->ret_value = std::any_cast<ValueIR*>(visitExp(ctx->exp()));
+    if (ctx->exp()) {
+      ret_ir->ret_value = std::any_cast<ValueIR*>(visitExp(ctx->exp()));
+    } else {
+      ret_ir->ret_value = nullptr;
+    }
     ir_module.endBasicBlock((ValueIR*)ret_ir);
   } else if (ctx->block()) {
     visitBlock((ctx->block()));
@@ -109,8 +146,16 @@ std::any IRGenVisitor::visitUnaryExp(SysYParser::UnaryExpContext* ctx) {
   if (ctx->primaryExp()) {
     return visitPrimaryExp(ctx->primaryExp());
   } else if (ctx->funcName()) {
-    // TODO
-    return nullptr;
+    std::string func_name = ctx->funcName()->IDENT()->getText();
+    FunctionIR* func = ir_module.getFunction(func_name);
+    CallInstrIR* call_ir = new CallInstrIR(func, getTmp());
+    if (ctx->funcRParams()) {
+      for (auto* exp : ctx->funcRParams()->exp()) {
+        call_ir->params.push_back(std::any_cast<ValueIR*>(visitExp(exp)));
+      }
+    }
+    ir_module.pushValueToBasicBlock(call_ir);
+    return (ValueIR*)call_ir;
   } else {
     auto uop = ctx->unaryOp();
     if (uop->PLUS()) {

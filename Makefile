@@ -1,3 +1,4 @@
+MAKEFLAGS += -j8
 TOP_DIR := $(shell pwd)
 SRC_DIR := $(TOP_DIR)/src
 BUILD_DIR ?= $(TOP_DIR)/build
@@ -22,7 +23,7 @@ endef
 $(BUILD_DIR)/%.cpp.o: $(SRC_DIR)/%.cpp; $(cxx_recipe)
 
 antlr:
-	java -jar /usr/local/lib/antlr-4.13.1-complete.jar -Dlanguage=Cpp $(SRC_DIR)/frontend/SysYParser.g4 $(SRC_DIR)/frontend/SysYLexer.g4 -visitor
+	java -jar /usr/local/lib/antlr-4.13.1-complete.jar -Dlanguage=Cpp $(SRC_DIR)/frontend/SysYParser.g4 $(SRC_DIR)/frontend/SysYLexer.g4 -visitor -no-listener
 
 compile: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(BUILD_DIR)/$(TARGET_EXEC)

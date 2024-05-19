@@ -2,7 +2,6 @@
 // Generated from /home/sprooc/sysY-compiler/src/frontend/SysYParser.g4 by ANTLR 4.13.1
 
 
-#include "SysYParserListener.h"
 #include "SysYParserVisitor.h"
 
 #include "SysYParser.h"
@@ -263,18 +262,6 @@ size_t SysYParser::ProgramContext::getRuleIndex() const {
   return SysYParser::RuleProgram;
 }
 
-void SysYParser::ProgramContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterProgram(this);
-}
-
-void SysYParser::ProgramContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitProgram(this);
-}
-
 
 std::any SysYParser::ProgramContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -338,18 +325,6 @@ SysYParser::DeclContext* SysYParser::CompUnitContext::decl(size_t i) {
 
 size_t SysYParser::CompUnitContext::getRuleIndex() const {
   return SysYParser::RuleCompUnit;
-}
-
-void SysYParser::CompUnitContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterCompUnit(this);
-}
-
-void SysYParser::CompUnitContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitCompUnit(this);
 }
 
 
@@ -431,18 +406,6 @@ SysYParser::VarDeclContext* SysYParser::DeclContext::varDecl() {
 
 size_t SysYParser::DeclContext::getRuleIndex() const {
   return SysYParser::RuleDecl;
-}
-
-void SysYParser::DeclContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterDecl(this);
-}
-
-void SysYParser::DeclContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitDecl(this);
 }
 
 
@@ -535,18 +498,6 @@ size_t SysYParser::ConstDeclContext::getRuleIndex() const {
   return SysYParser::RuleConstDecl;
 }
 
-void SysYParser::ConstDeclContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterConstDecl(this);
-}
-
-void SysYParser::ConstDeclContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitConstDecl(this);
-}
-
 
 std::any SysYParser::ConstDeclContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -613,18 +564,6 @@ tree::TerminalNode* SysYParser::BTypeContext::INT() {
 
 size_t SysYParser::BTypeContext::getRuleIndex() const {
   return SysYParser::RuleBType;
-}
-
-void SysYParser::BTypeContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterBType(this);
-}
-
-void SysYParser::BTypeContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitBType(this);
 }
 
 
@@ -706,18 +645,6 @@ tree::TerminalNode* SysYParser::ConstDefContext::R_BRACKT(size_t i) {
 
 size_t SysYParser::ConstDefContext::getRuleIndex() const {
   return SysYParser::RuleConstDef;
-}
-
-void SysYParser::ConstDefContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterConstDef(this);
-}
-
-void SysYParser::ConstDefContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitConstDef(this);
 }
 
 
@@ -810,18 +737,6 @@ tree::TerminalNode* SysYParser::ConstInitValContext::COMMA(size_t i) {
 
 size_t SysYParser::ConstInitValContext::getRuleIndex() const {
   return SysYParser::RuleConstInitVal;
-}
-
-void SysYParser::ConstInitValContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterConstInitVal(this);
-}
-
-void SysYParser::ConstInitValContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitConstInitVal(this);
 }
 
 
@@ -940,18 +855,6 @@ size_t SysYParser::VarDeclContext::getRuleIndex() const {
   return SysYParser::RuleVarDecl;
 }
 
-void SysYParser::VarDeclContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterVarDecl(this);
-}
-
-void SysYParser::VarDeclContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitVarDecl(this);
-}
-
 
 std::any SysYParser::VarDeclContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -1048,18 +951,6 @@ SysYParser::InitValContext* SysYParser::VarDefContext::initVal() {
 
 size_t SysYParser::VarDefContext::getRuleIndex() const {
   return SysYParser::RuleVarDef;
-}
-
-void SysYParser::VarDefContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterVarDef(this);
-}
-
-void SysYParser::VarDefContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitVarDef(this);
 }
 
 
@@ -1185,18 +1076,6 @@ size_t SysYParser::InitValContext::getRuleIndex() const {
   return SysYParser::RuleInitVal;
 }
 
-void SysYParser::InitValContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterInitVal(this);
-}
-
-void SysYParser::InitValContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitInitVal(this);
-}
-
 
 std::any SysYParser::InitValContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -1313,18 +1192,6 @@ size_t SysYParser::FuncDefContext::getRuleIndex() const {
   return SysYParser::RuleFuncDef;
 }
 
-void SysYParser::FuncDefContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFuncDef(this);
-}
-
-void SysYParser::FuncDefContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFuncDef(this);
-}
-
 
 std::any SysYParser::FuncDefContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -1393,18 +1260,6 @@ tree::TerminalNode* SysYParser::FuncTypeContext::INT() {
 
 size_t SysYParser::FuncTypeContext::getRuleIndex() const {
   return SysYParser::RuleFuncType;
-}
-
-void SysYParser::FuncTypeContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFuncType(this);
-}
-
-void SysYParser::FuncTypeContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFuncType(this);
 }
 
 
@@ -1476,18 +1331,6 @@ tree::TerminalNode* SysYParser::FuncFParamsContext::COMMA(size_t i) {
 
 size_t SysYParser::FuncFParamsContext::getRuleIndex() const {
   return SysYParser::RuleFuncFParams;
-}
-
-void SysYParser::FuncFParamsContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFuncFParams(this);
-}
-
-void SysYParser::FuncFParamsContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFuncFParams(this);
 }
 
 
@@ -1580,18 +1423,6 @@ size_t SysYParser::FuncFParamContext::getRuleIndex() const {
   return SysYParser::RuleFuncFParam;
 }
 
-void SysYParser::FuncFParamContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFuncFParam(this);
-}
-
-void SysYParser::FuncFParamContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFuncFParam(this);
-}
-
 
 std::any SysYParser::FuncFParamContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -1680,18 +1511,6 @@ size_t SysYParser::BlockContext::getRuleIndex() const {
   return SysYParser::RuleBlock;
 }
 
-void SysYParser::BlockContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterBlock(this);
-}
-
-void SysYParser::BlockContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitBlock(this);
-}
-
 
 std::any SysYParser::BlockContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -1757,18 +1576,6 @@ SysYParser::StmtContext* SysYParser::BlockItemContext::stmt() {
 
 size_t SysYParser::BlockItemContext::getRuleIndex() const {
   return SysYParser::RuleBlockItem;
-}
-
-void SysYParser::BlockItemContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterBlockItem(this);
-}
-
-void SysYParser::BlockItemContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitBlockItem(this);
 }
 
 
@@ -1885,18 +1692,6 @@ tree::TerminalNode* SysYParser::StmtContext::RETURN() {
 
 size_t SysYParser::StmtContext::getRuleIndex() const {
   return SysYParser::RuleStmt;
-}
-
-void SysYParser::StmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterStmt(this);
-}
-
-void SysYParser::StmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitStmt(this);
 }
 
 
@@ -2062,18 +1857,6 @@ size_t SysYParser::IfElseStmtContext::getRuleIndex() const {
   return SysYParser::RuleIfElseStmt;
 }
 
-void SysYParser::IfElseStmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterIfElseStmt(this);
-}
-
-void SysYParser::IfElseStmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitIfElseStmt(this);
-}
-
 
 std::any SysYParser::IfElseStmtContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -2162,18 +1945,6 @@ size_t SysYParser::WhileStmtContext::getRuleIndex() const {
   return SysYParser::RuleWhileStmt;
 }
 
-void SysYParser::WhileStmtContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterWhileStmt(this);
-}
-
-void SysYParser::WhileStmtContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitWhileStmt(this);
-}
-
 
 std::any SysYParser::WhileStmtContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -2231,18 +2002,6 @@ size_t SysYParser::ExpContext::getRuleIndex() const {
   return SysYParser::RuleExp;
 }
 
-void SysYParser::ExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterExp(this);
-}
-
-void SysYParser::ExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitExp(this);
-}
-
 
 std::any SysYParser::ExpContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -2290,18 +2049,6 @@ SysYParser::LOrExpContext* SysYParser::CondContext::lOrExp() {
 
 size_t SysYParser::CondContext::getRuleIndex() const {
   return SysYParser::RuleCond;
-}
-
-void SysYParser::CondContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterCond(this);
-}
-
-void SysYParser::CondContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitCond(this);
 }
 
 
@@ -2375,18 +2122,6 @@ tree::TerminalNode* SysYParser::LValContext::R_BRACKT(size_t i) {
 
 size_t SysYParser::LValContext::getRuleIndex() const {
   return SysYParser::RuleLVal;
-}
-
-void SysYParser::LValContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterLVal(this);
-}
-
-void SysYParser::LValContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitLVal(this);
 }
 
 
@@ -2471,18 +2206,6 @@ size_t SysYParser::PrimaryExpContext::getRuleIndex() const {
   return SysYParser::RulePrimaryExp;
 }
 
-void SysYParser::PrimaryExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterPrimaryExp(this);
-}
-
-void SysYParser::PrimaryExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitPrimaryExp(this);
-}
-
 
 std::any SysYParser::PrimaryExpContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -2563,18 +2286,6 @@ tree::TerminalNode* SysYParser::NumberContext::FLOAT_CONST() {
 
 size_t SysYParser::NumberContext::getRuleIndex() const {
   return SysYParser::RuleNumber;
-}
-
-void SysYParser::NumberContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterNumber(this);
-}
-
-void SysYParser::NumberContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitNumber(this);
 }
 
 
@@ -2658,18 +2369,6 @@ SysYParser::UnaryExpContext* SysYParser::UnaryExpContext::unaryExp() {
 
 size_t SysYParser::UnaryExpContext::getRuleIndex() const {
   return SysYParser::RuleUnaryExp;
-}
-
-void SysYParser::UnaryExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterUnaryExp(this);
-}
-
-void SysYParser::UnaryExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitUnaryExp(this);
 }
 
 
@@ -2769,18 +2468,6 @@ size_t SysYParser::UnaryOpContext::getRuleIndex() const {
   return SysYParser::RuleUnaryOp;
 }
 
-void SysYParser::UnaryOpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterUnaryOp(this);
-}
-
-void SysYParser::UnaryOpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitUnaryOp(this);
-}
-
 
 std::any SysYParser::UnaryOpContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -2849,18 +2536,6 @@ tree::TerminalNode* SysYParser::FuncRParamsContext::COMMA(size_t i) {
 
 size_t SysYParser::FuncRParamsContext::getRuleIndex() const {
   return SysYParser::RuleFuncRParams;
-}
-
-void SysYParser::FuncRParamsContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFuncRParams(this);
-}
-
-void SysYParser::FuncRParamsContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFuncRParams(this);
 }
 
 
@@ -2939,18 +2614,6 @@ tree::TerminalNode* SysYParser::MulExpContext::MOD() {
 
 size_t SysYParser::MulExpContext::getRuleIndex() const {
   return SysYParser::RuleMulExp;
-}
-
-void SysYParser::MulExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterMulExp(this);
-}
-
-void SysYParser::MulExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitMulExp(this);
 }
 
 
@@ -3054,18 +2717,6 @@ tree::TerminalNode* SysYParser::AddExpContext::MINUS() {
 
 size_t SysYParser::AddExpContext::getRuleIndex() const {
   return SysYParser::RuleAddExp;
-}
-
-void SysYParser::AddExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAddExp(this);
-}
-
-void SysYParser::AddExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAddExp(this);
 }
 
 
@@ -3180,18 +2831,6 @@ size_t SysYParser::RelExpContext::getRuleIndex() const {
   return SysYParser::RuleRelExp;
 }
 
-void SysYParser::RelExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterRelExp(this);
-}
-
-void SysYParser::RelExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitRelExp(this);
-}
-
 
 std::any SysYParser::RelExpContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -3295,18 +2934,6 @@ size_t SysYParser::EqExpContext::getRuleIndex() const {
   return SysYParser::RuleEqExp;
 }
 
-void SysYParser::EqExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterEqExp(this);
-}
-
-void SysYParser::EqExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitEqExp(this);
-}
-
 
 std::any SysYParser::EqExpContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -3407,18 +3034,6 @@ size_t SysYParser::LAndExpContext::getRuleIndex() const {
   return SysYParser::RuleLAndExp;
 }
 
-void SysYParser::LAndExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterLAndExp(this);
-}
-
-void SysYParser::LAndExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitLAndExp(this);
-}
-
 
 std::any SysYParser::LAndExpContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -3510,18 +3125,6 @@ size_t SysYParser::LOrExpContext::getRuleIndex() const {
   return SysYParser::RuleLOrExp;
 }
 
-void SysYParser::LOrExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterLOrExp(this);
-}
-
-void SysYParser::LOrExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitLOrExp(this);
-}
-
 
 std::any SysYParser::LOrExpContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -3605,18 +3208,6 @@ size_t SysYParser::ConstExpContext::getRuleIndex() const {
   return SysYParser::RuleConstExp;
 }
 
-void SysYParser::ConstExpContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterConstExp(this);
-}
-
-void SysYParser::ConstExpContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitConstExp(this);
-}
-
 
 std::any SysYParser::ConstExpContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SysYParserVisitor*>(visitor))
@@ -3664,18 +3255,6 @@ tree::TerminalNode* SysYParser::FuncNameContext::IDENT() {
 
 size_t SysYParser::FuncNameContext::getRuleIndex() const {
   return SysYParser::RuleFuncName;
-}
-
-void SysYParser::FuncNameContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFuncName(this);
-}
-
-void SysYParser::FuncNameContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<SysYParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFuncName(this);
 }
 
 

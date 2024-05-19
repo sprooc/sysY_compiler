@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <stack>
+#include <unordered_map>
 
 #include "IR.h"
 #include "Scope.h"
@@ -19,6 +20,7 @@ class Module {
   std::unique_ptr<std::stack<ExpState>> state_stack;
   std::unique_ptr<std::stack<Label*>> continue_stack;
   std::unique_ptr<std::stack<Label*>> break_stack;
+  std::unique_ptr<std::unordered_map<std::string, FunctionIR*>> function_table;
 
  public:
   Module() : curr_basic_block(nullptr), program_ir(new ProgramIR()) {
@@ -26,10 +28,14 @@ class Module {
     true_stack = std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
     false_stack = std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
     next_stack = std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
-    state_stack = std::unique_ptr<std::stack<ExpState>>(new std::stack<ExpState>());
-    continue_stack = std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
+    state_stack =
+        std::unique_ptr<std::stack<ExpState>>(new std::stack<ExpState>());
+    continue_stack =
+        std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
     break_stack = std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
-
+    function_table =
+        std::unique_ptr<std::unordered_map<std::string, FunctionIR*>>(
+            new std::unordered_map<std::string, FunctionIR*>());
   }
   ~Module() { delete curr_scope; }
 
@@ -71,8 +77,23 @@ class Module {
   }
 
   void pushFunction(FunctionIR* function) {
+    auto it = function_table->find(function->name);
+    if (it != function_table->end()) {
+      std::cerr << "Error: redefine function: " << function->name << std::endl;
+      exit(1);
+    }
+    function_table->emplace(function->name, function);
     curr_function = function;
     program_ir->functions.push_back(std::unique_ptr<FunctionIR>(function));
+  }
+
+  FunctionIR* getFunction(const std::string& name) const {
+    auto it = function_table->find(name);
+    if (it == function_table->end()) {
+      return nullptr;
+    } else {
+      return it->second;
+    }
   }
 
   void pushBasicBlock(BasicBlockIR* basic_block) {
