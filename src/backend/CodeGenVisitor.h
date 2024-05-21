@@ -19,6 +19,8 @@ class CodeGenVisitor {
   void outCode(std::string instr);
   void outCode(std::string instr, int imm, const std::string* rs1,
                const std::string* rs2);
+  void outCode(std::string instr, std::string* r, std::string label);
+  void outCode(std::string instr, std::string label);
   void outCodeOffset(std::string instr, const std::string* rd,
                      const std::string* rs1, int imm);
   void outLabel(std::string label);
@@ -29,6 +31,8 @@ class CodeGenVisitor {
   void emitCodeU(std::string instr, int rd, int imm);
   void emitCodeJ(std::string instr, int rd, int rs);
   void emitCodePI(std::string instr);
+  void emitCodeIRL(std::string instr, int r, std::string label);
+  void emitCodeIL(std::string instr, std::string label);
   void emitCodePIRR(std::string instr, int rd, int rs);
   int loadFromMen(ValueIR* value);
 
@@ -43,4 +47,6 @@ class CodeGenVisitor {
   void visit(AllocInstrIR* alloc_instr);
   void visit(LoadInstrIR* load_instr);
   void visit(StoreInstrIR* store_instr);
+  void visit(JumpInstrIR* jump_instr);
+  void visit(BrInstrIR* br_instr);
 };

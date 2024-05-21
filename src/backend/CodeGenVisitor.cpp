@@ -152,13 +152,25 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
   emitCodeI("sw", src, sp, dmen);
   reg_alloc.freeAll();
 }
+
 void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
   if (state == SCAN) return;
-
   int src = loadFromMen(store_instr->src);
   int dmen = men_alloc.getLoc(store_instr->dst->toString());
   emitCodeI("sw", src, sp, dmen);
   reg_alloc.freeAll();
+}
+
+void CodeGenVisitor::visit(JumpInstrIR* jump_instr) {
+  if (state == SCAN) return;
+  emitCodeIL("j", jump_instr->label->name);
+}
+
+void CodeGenVisitor::visit(BrInstrIR* br_instr) {
+  if (state == SCAN) return;
+  int reg = loadFromMen(br_instr->cond);
+  emitCodeIRL("bnez", reg, br_instr->true_label->name);
+  emitCodeIL("j", br_instr->false_label->name);
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value) {
@@ -213,6 +225,9 @@ void CodeGenVisitor::emitCodePIRR(std::string instr, int rd, int rs) {
   outCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs));
 }
 
+void CodeGenVisitor::emitCodeIRL(std::string instr, int r, std::string label) {}
+void CodeGenVisitor::emitCodeIL(std::string instr, std::string label) {}
+
 void CodeGenVisitor::outCode(std::string instr, const std::string* rd,
                              const std::string* rs1, const std::string* rs2) {
   out_file << "  " << instr;
@@ -263,5 +278,19 @@ void CodeGenVisitor::outCodeOffset(std::string instr, const std::string* rd,
   }
   out_file << *rd << ", " << imm << "(" << *rs1 << ")" << std::endl;
 }
-
+void CodeGenVisitor::outCode(std::string instr, std::string* r,
+                             std::string label) {
+  out_file << "  " << instr;
+  for (int i = 6 - instr.size(); i; i--) {
+    out_file << " ";
+  }
+  out_file << *r << ", " << label << std::endl;
+}
+void CodeGenVisitor::outCode(std::string instr, std::string label) {
+  out_file << "  " << instr;
+  for (int i = 6 - instr.size(); i; i--) {
+    out_file << " ";
+  }
+  out_file << label << std::endl;
+}
 void CodeGenVisitor::outLabel(std::string label) { out_file << label << ":"; }
