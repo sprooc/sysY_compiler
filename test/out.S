@@ -139,20 +139,20 @@ entry:
   li    a7, 8
   li    t0, 9
   sw    t0, 0(sp)
-  li    t1, 10
-  sw    t1, 4(sp)
-  li    t2, 11
-  sw    t2, 8(sp)
-  li    t3, 12
-  sw    t3, 12(sp)
-  li    t4, 13
-  sw    t4, 16(sp)
-  li    t5, 14
-  sw    t5, 20(sp)
-  li    t6, 15
-  sw    t6, 24(sp)
-  li    a0, 16
-  sw    a0, 28(sp)
+  li    t0, 10
+  sw    t0, 4(sp)
+  li    t0, 11
+  sw    t0, 8(sp)
+  li    t0, 12
+  sw    t0, 12(sp)
+  li    t0, 13
+  sw    t0, 16(sp)
+  li    t0, 14
+  sw    t0, 20(sp)
+  li    t0, 15
+  sw    t0, 24(sp)
+  li    t0, 16
+  sw    t0, 28(sp)
   call  sum2
   sw    a0, 4(sp)
   lw    t0, 4(sp)
