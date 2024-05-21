@@ -1,37 +1,19 @@
   .data
-  .global x
-x:
+  .globl var
+var:
   .word 0
-  .global init
-init:
-  .word 1
   .text
-  .global main
+  .globl main
 main:
   addi  sp, sp, -16
-  sw    ra, 12(sp)
 entry:
-  la    t0, x
+  la    t0, var
   sw    t0, 0(sp)
-  lw    a0, 0(sp)
-  call  putint
-  li    a0, 32
-  call  putch
-  li    a0, 10
-  call  putint
-  li    a0, 32
-  call  putch
-  li    a0, 11
-  call  putint
-  li    a0, 32
-  call  putch
-  la    t0, init
+  lw    t0, 0(sp)
+  li    t1, 1
+  add   t0, t0, t1
   sw    t0, 4(sp)
   lw    a0, 4(sp)
-  call  putint
-  li    a0, 10
-  call  putch
-  lw    ra, 12(sp)
   addi  sp, sp, 16
   ret
 

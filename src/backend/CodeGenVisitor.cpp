@@ -174,6 +174,7 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
     int reg = reg_alloc.GetOne();
     int dmen = men_alloc.getLoc(load_instr->toString());
     emitCodeIRL("la", reg, ((GlobalAllocIR*)load_instr->src)->var->name);
+    emitCodeI("lw", reg, reg, 0);
     emitCodeI("sw", reg, sp, dmen);
   } else {
     int src = loadFromMen(load_instr->src);
