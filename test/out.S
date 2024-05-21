@@ -1,3 +1,43 @@
+decl @getint(): i32
+decl @getch(): i32
+decl @getarray(*i32): i32
+decl @putint(i32)
+decl @putch(i32)
+decl @putarray(i32, *i32)
+decl @starttime()
+decl @stoptime()
+global @a_0 = alloc i32, 10
+fun @inc(): i32 {
+%L0:
+  %0 = load @a_0
+  %1 = add %0, 1
+  store %1, @a_0
+  %2 = load @a_0
+  ret %2
+}
+fun @main(): i32 {
+%entry:
+  @i_1 = alloc i32
+  store 0, @i_1
+  jump %L2
+%L2:
+  %3 = load @i_1
+  %4 = lt %3, 10
+  br %4, %L3, %L1
+%L3:
+  %5 = call @inc()
+  @a_2 = alloc i32
+  store 1, @a_2
+  %6 = load @a_2
+  %7 = add %6, 2
+  store %7, @a_2
+  %8 = load @i_1
+  %9 = add %8, 1
+  store %9, @i_1
+  jump %L2
+%L1:
+  ret 0
+}
   .data
   .globl a
 a:
