@@ -190,9 +190,12 @@ void CodeGenVisitor::visit(BrInstrIR* br_instr) {
   emitCodeIL("j", br_instr->false_label->name);
 }
 
-void CodeGenVisitor::visit(CallInstrIR* br_instr) {
+void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   if (state == SCAN) {
-    men_alloc.noticeCall(br_instr->params.size());
+    men_alloc.noticeCall(call_instr->params.size());
+    if (call_instr->function->ret_type->tag != IRT_VOID) {
+      men_alloc.alloc(call_instr->name, 4);
+    }
     return;
   }
 }
