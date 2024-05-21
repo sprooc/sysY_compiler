@@ -164,7 +164,7 @@ void CodeGenVisitor::visit(BinaryOpInstrIR* binary_op_instr) {
 
 void CodeGenVisitor::visit(AllocInstrIR* alloc_instr) {
   if (state == SCAN) {
-    men_alloc.alloc(alloc_instr->toString(), alloc_instr->var->type->getSize());
+    men_alloc.alloc(alloc_instr->toString(), alloc_instr->var->type);
     return;
   }
 }
@@ -257,8 +257,18 @@ void CodeGenVisitor::visit(GetElemPtrIR* gep_isntr) {
   int src_loc = men_alloc.getLoc(gep_isntr->ptr->toString());
   int reg = reg_alloc.GetOne();
   emitCodeI("addi", reg, sp, src_loc);
-  // ArrayType * array_type = gep_isntr->ptr->
-  // int type_size =
+  ArrayType* array_type =
+      (ArrayType*)men_alloc.getType(gep_isntr->ptr->toString());
+  int type_size = array_type->elem_type->getSize();
+  int index_r = loadFromMen(gep_isntr->index);
+  int width_r = reg_alloc.GetOne();
+  emitCodeU("li", width_r, type_size);
+  emitCodeI("mul", width_r, width_r, index_r);
+  emitCodeI("add", reg, reg, width_r);
+  int dmen = men_alloc.getLoc(gep_isntr->toString());
+  emitCodeI("sw", reg, sp, dmen);
+  men_alloc.setType(gep_isntr->toString(), array_type->elem_type.get());
+  reg_alloc.freeAll();
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {

@@ -2,6 +2,7 @@
 void MenAllocator::enterFunction() {
   men_size = 0;
   men_table = std::make_unique<unordered_map<string, int>>();
+  type_table = std::make_unique<unordered_map<string, Type*>>();
   has_call = false;
   max_ps = 0;
 }
@@ -12,6 +13,26 @@ void MenAllocator::exitFunxtion() {
 void MenAllocator::alloc(string name, int size) {
   men_table->emplace(name, men_size);
   men_size += size;
+}
+
+void MenAllocator::alloc(string name, Type* type) {
+  alloc(name, type->getSize());
+  type_table->emplace(name, type);
+}
+
+Type* MenAllocator::getType(string name) {
+  auto it = type_table->find(name);
+  if (it == type_table->end()) {
+    std::cerr << "Cannot find type of " << name << std::endl;
+    exit(1);
+  }
+  return it->second;
+}
+
+void MenAllocator::setType(string name, Type* type) {
+  if (type_table->find(name) == type_table->end()) {
+    type_table->emplace(name, type);
+  }
 }
 
 int MenAllocator::getStackSize() {
