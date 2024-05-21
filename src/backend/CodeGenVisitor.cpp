@@ -77,11 +77,11 @@ void CodeGenVisitor::visit(ReturnValueIR* return_value) {
   if (return_value->ret_value) {
     int reg = loadFromMen(return_value->ret_value);
     emitCodePIRR("mv", a0, reg);
-    if (men_alloc.hasCall()) {
-      emitCodeI("lw", ra, sp, men_alloc.getStackSize() - 4);
-    }
-    emitCodeI("addi", sp, sp, men_alloc.getStackSize());
   }
+  if (men_alloc.hasCall()) {
+    emitCodeI("lw", ra, sp, men_alloc.getStackSize() - 4);
+  }
+  emitCodeI("addi", sp, sp, men_alloc.getStackSize());
   emitCodePI("ret");
 }
 void CodeGenVisitor::visit(IntegerValueIR* integer_value) {

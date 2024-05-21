@@ -41,12 +41,14 @@ L0:
   mv    a0, t0
   addi  sp, sp, 16
   ret
+
   .text
   .global f
 f:
   addi  sp, sp, 0
 L1:
   ret
+
   .text
   .global main
 main:
@@ -59,3 +61,4 @@ entry:
   lw    ra, 12(sp)
   addi  sp, sp, 16
   ret
+
