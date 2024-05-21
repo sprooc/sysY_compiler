@@ -40,7 +40,7 @@ debug:
 
 .PHONY: test llvm
 
-MODE = koopa
+MODE = riscv
 LV = 1
 
 autotest:

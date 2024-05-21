@@ -3,7 +3,7 @@
 #include <map>
 #include <queue>
 #include <string>
-
+enum Reg { x0, t0, t1, t2, t3, t4, t5, t6, a0, a1, a2, a3, a4, a5, a6, a7 };
 class RegAllocator {
  private:
   const std::string reg_name[16] = {"x0", "t0", "t1", "t2", "t3", "t4",
@@ -38,7 +38,7 @@ class RegAllocator {
     free_list.push(r);
   }
 
-  const std::string*  GetName(int r) {
+  const std::string* GetName(int r) {
     assert(r < 16);
     return &reg_name[r];
   }
