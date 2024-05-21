@@ -1,3 +1,5 @@
+#ifndef TYPE_H
+#define TYPE_H
 #include <memory>
 #include <string>
 #include <vector>
@@ -77,3 +79,4 @@ class FunctionType : public Type {
   std::string toString() const override { return "function"; }
 };
 /*----------------- Type end -------------------------*/
+#endif
