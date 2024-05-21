@@ -1,9 +1,3 @@
-int sum(int a0, int a1) {
-  return a0 + a1;
-}
-
-
 int _start() {
-  int x = sum(1, 2);
   return 0;
 }
