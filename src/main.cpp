@@ -39,23 +39,10 @@ int main(int argc, const char *argv[]) {
   SysYParser parser(&tokens);
   IRGenVisitor visitor;
   visitor.visitProgram(parser.program());
-  visitor.PrintResult();
+  // visitor.PrintResult();
   CodeGenVisitor code_gen;
   code_gen.visit(visitor.getProgram());
 
   return 0;
 
-  // // 输出解析得到的 AST, 其实就是个字符串
-  // // ast->Dump();
-  // IRGenerateVisitor IR_visitor;
-  // IR_visitor.Visit((CompUnit *)ast.get());
-
-  // std::string mode_str = std::string(mode);
-  // if (mode_str == "-koopa") {
-  //   IR_visitor.PrintResult();
-  // } else if (mode_str == "-riscv") {
-  //   CodeGenVisitor cg_visitor;
-  //   cg_visitor.Visit(IR_visitor.GetProgramIR());
-  // }
-  // return 0;
 }

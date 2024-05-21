@@ -231,8 +231,12 @@ void CodeGenVisitor::emitCodePIRR(std::string instr, int rd, int rs) {
   outCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs));
 }
 
-void CodeGenVisitor::emitCodeIRL(std::string instr, int r, std::string label) {}
-void CodeGenVisitor::emitCodeIL(std::string instr, std::string label) {}
+void CodeGenVisitor::emitCodeIRL(std::string instr, int r, std::string label) {
+  outCode(instr, reg_alloc.GetName(r), label);
+}
+void CodeGenVisitor::emitCodeIL(std::string instr, std::string label) {
+  outCode(instr, label);
+}
 
 void CodeGenVisitor::outCode(std::string instr, const std::string* rd,
                              const std::string* rs1, const std::string* rs2) {

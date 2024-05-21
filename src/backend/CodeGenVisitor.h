@@ -19,7 +19,7 @@ class CodeGenVisitor {
   void outCode(std::string instr);
   void outCode(std::string instr, int imm, const std::string* rs1,
                const std::string* rs2);
-  void outCode(std::string instr, std::string* r, std::string label);
+  void outCode(std::string instr, const std::string* r, std::string label);
   void outCode(std::string instr, std::string label);
   void outCodeOffset(std::string instr, const std::string* rd,
                      const std::string* rs1, int imm);
