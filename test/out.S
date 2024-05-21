@@ -55,7 +55,7 @@ main:
   addi  sp, sp, -16
   sw    ra, 12(sp)
 entry:
-  li    a0, 20
+  li    a0, 2
   call  fib
   sw    a0, 4(sp)
   lw    a0, 4(sp)

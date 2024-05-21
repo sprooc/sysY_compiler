@@ -235,6 +235,7 @@ int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
       loc = ((ParamIR*)value)->loc;
       if (loc < 8) {
         return a0 + loc;
+        
       }
       loc -= 8;
       emitCodeI("lw", reg, sp, men_alloc.getStackSize() + loc * 4);

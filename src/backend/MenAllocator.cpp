@@ -26,7 +26,7 @@ int MenAllocator::getStackSize() {
 }
 
 int MenAllocator::getLoc(string name) {
-  return men_table->find(name)->second + max_ps * 4;
+  return men_table->find(name)->second + std::max(max_ps - 8, 0) * 4;
 }
 
 void MenAllocator::noticeCall(int ps) {
