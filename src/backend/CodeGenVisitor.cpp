@@ -246,13 +246,15 @@ void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
+  bool has_reg = false;
   if (reg == 0) {
+    has_reg = true;
     reg = reg_alloc.GetOne();
   }
   int loc;
   switch (value->tag) {
     case IRV_INTEGER:
-      if (((IntegerValueIR*)value)->number == 0) {
+      if (((IntegerValueIR*)value)->number == 0 && !has_reg) {
         return x0;
       }
       emitCodeU("li", reg, ((IntegerValueIR*)value)->number);
