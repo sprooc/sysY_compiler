@@ -181,9 +181,9 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
 void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
   if (state == SCAN) return;
   int src = loadFromMen(store_instr->src);
-  if (store_instr->src->tag == IRV_GALLOC) {
+  if (store_instr->dst->tag == IRV_GALLOC) {
     int reg = reg_alloc.GetOne();
-    emitCodeIRL("la", reg, ((GlobalAllocIR*)store_instr->src)->var->name);
+    emitCodeIRL("la", reg, ((GlobalAllocIR*)store_instr->dst)->var->name);
     emitCodeI("sw", src, 0, reg);
     reg_alloc.freeAll();
   } else {
