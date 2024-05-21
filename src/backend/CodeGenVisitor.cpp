@@ -223,7 +223,6 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   reg_alloc.freeAll();
 }
 void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
-  out_file << "  .text" << std::endl;
   out_file << "  .global " << galloc_instr->var->name << std::endl;
   int size = galloc_instr->var->type->getSize();
   outLabel(galloc_instr->var->name);
