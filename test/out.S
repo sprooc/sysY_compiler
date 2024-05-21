@@ -4,8 +4,7 @@
 main:
   addi  sp, sp, -32
 entry:
-  li    t0, 0
-  sw    t0, 0(sp)
+  sw    x0, 0(sp)
   j     L1
 L1:
   lw    t0, 0(sp)
@@ -38,6 +37,7 @@ L2:
   sw    t0, 0(sp)
   j     L1
 L0:
+  li    a0, 0
   addi  sp, sp, 32
   ret
 
