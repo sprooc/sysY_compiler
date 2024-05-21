@@ -97,6 +97,7 @@ class ParamIR : public ValueIR {
   void PrintIR() const override {
     out_file << "@" << name << ": " << type->toString();
   };
+  std::string toString() const override { return name; }
 };
 
 class VariableIR : public ValueIR {

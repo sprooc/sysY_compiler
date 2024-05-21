@@ -18,8 +18,13 @@ void CodeGenVisitor::visit(FunctionIR* function) {
   for (auto& bb : function->basic_blocks) {
     visit((BasicBlockIR*)bb.get());
   }
-  emitCodeI("addi", sp, sp, -men_alloc.getStackSize());
-  state = GEN;
+  // alloc stack space
+  int st_size = men_alloc.getStackSize();
+  emitCodeI("addi", sp, sp, -st_size);
+  // save return address: ra
+  if (men_alloc.hasCall()) {
+    emitCodeI("sw", ra, sp, st_size - 4) state = GEN;
+  }
   for (auto& bb : function->basic_blocks) {
     visit((BasicBlockIR*)bb.get());
   }
@@ -57,6 +62,9 @@ void CodeGenVisitor::visit(ValueIR* value) {
     case ValueTag::IRV_BR:
       visit((BrInstrIR*)value);
       break;
+    case ValueTag::IRV_CALL:
+      visit((CallInstrIR*)value);
+      break;
     default:
       // assert(0);
       break;
@@ -67,8 +75,10 @@ void CodeGenVisitor::visit(ReturnValueIR* return_value) {
 
   int reg = loadFromMen(return_value->ret_value);
   emitCodePIRR("mv", a0, reg);
+  if (men_alloc.hasCall()) {
+    emitCodeI("lw", ra, sp, men_alloc.getStackSize() - 4);
+  }
   emitCodeI("addi", sp, sp, men_alloc.getStackSize());
-
   emitCodePI("ret");
 }
 void CodeGenVisitor::visit(IntegerValueIR* integer_value) {
@@ -177,6 +187,13 @@ void CodeGenVisitor::visit(BrInstrIR* br_instr) {
   int reg = loadFromMen(br_instr->cond);
   emitCodeIRL("bnez", reg, br_instr->true_label->name);
   emitCodeIL("j", br_instr->false_label->name);
+}
+
+void CodeGenVisitor::visit(CallInstrIR* br_instr) {
+  if (state == SCAN) {
+    men_alloc.noticeCall(br_instr->params.size());
+    return;
+  }
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value) {

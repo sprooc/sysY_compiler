@@ -49,4 +49,5 @@ class CodeGenVisitor {
   void visit(StoreInstrIR* store_instr);
   void visit(JumpInstrIR* jump_instr);
   void visit(BrInstrIR* br_instr);
+  void visit(CallInstrIR* br_instr);
 };

@@ -9,6 +9,8 @@ class MenAllocator {
  private:
   unique_ptr<unordered_map<string, int>> men_table;
   int men_size;
+  bool has_call;
+  int max_ps;
 
  public:
   MenAllocator() {}
@@ -17,4 +19,6 @@ class MenAllocator {
   void alloc(string name, int size);
   int getStackSize();
   int getLoc(string name);
+  void noticeCall(int ps);
+  bool hasCall() { return has_call; }
 };

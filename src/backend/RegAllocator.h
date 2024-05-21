@@ -3,12 +3,12 @@
 #include <map>
 #include <queue>
 #include <string>
-enum Reg { x0, t0, t1, t2, t3, t4, t5, t6, a0, a1, a2, a3, a4, a5, a6, a7 , sp};
+enum Reg { x0, t0, t1, t2, t3, t4, t5, t6, a0, a1, a2, a3, a4, a5, a6, a7 , sp, ra};
 class RegAllocator {
  private:
-  const std::string reg_name[17] = {"x0", "t0", "t1", "t2", "t3", "t4",
+  const std::string reg_name[18] = {"x0", "t0", "t1", "t2", "t3", "t4",
                                     "t5", "t6", "a0", "a1", "a2", "a3",
-                                    "a4", "a5", "a6", "a7", "sp"};
+                                    "a4", "a5", "a6", "a7", "sp", "ra"};
   std::map<std::string, int> alloc_map;
   int upper = 1;
   std::queue<int> free_list;
