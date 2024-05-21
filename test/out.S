@@ -1,10 +1,10 @@
   .data
   .global x
 x:
-  .word x_0
+  .word 0
   .global init
 init:
-  .word init_1
+  .word 1
   .text
   .global main
 main:
