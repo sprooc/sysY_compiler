@@ -190,15 +190,15 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
 
   int src = loadFromMen(load_instr->src);
   int dmen = men_alloc.getLoc(load_instr->toString());
-  emitCodeI("sw", src, sp, dmen);
-  Type* t = men_alloc.getType(load_instr->src->toString());
-  if (t) {
-    int tr = reg_alloc.GetOne();
-    emitLoad(tr, src, 0);
-    emitSave(src, tr, 0);
-  } else {
-    emitSave(src, sp, dmen);
-  }
+  // emitCodeI("sw", src, sp, dmen);
+  // Type* t = men_alloc.getType(load_instr->src->toString());
+  // if (t) {
+  //   int tr = reg_alloc.GetOne();
+  //   emitLoad(tr, src, 0);
+  //   emitSave(src, tr, 0);
+  // } else {
+  emitSave(src, sp, dmen);
+  // }
   reg_alloc.freeAll();
 }
 
@@ -212,15 +212,15 @@ void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
     reg_alloc.freeAll();
   } else {
     int dmen = men_alloc.getLoc(store_instr->dst->toString());
-    emitCodeI("sw", src, sp, dmen);
-    Type* t = men_alloc.getType(store_instr->dst->toString());
-    if (t) {
-      int tr = reg_alloc.GetOne();
-      emitLoad(tr, sp, dmen);
-      emitSave(src, tr, 0);
-    } else {
-      emitSave(src, sp, dmen);
-    }
+    // emitCodeI("sw", src, sp, dmen);
+    // Type* t = men_alloc.getType(store_instr->dst->toString());
+    // if (t) {
+    //   int tr = reg_alloc.GetOne();
+    //   emitLoad(tr, sp, dmen);
+    //   emitSave(src, tr, 0);
+    // } else {
+    emitSave(src, sp, dmen);
+    // }
     reg_alloc.freeAll();
   }
 }
