@@ -35,7 +35,15 @@ void CodeGenVisitor::visit(FunctionIR* function) {
   }
   // save return address: ra
   if (men_alloc.hasCall()) {
-    emitCodeI("sw", ra, sp, st_size - 4);
+    st_size -= 4;
+    if (st_size < 2048) {
+      emitCodeI("addi", ra, sp, st_size);
+    } else {
+      int tr = reg_alloc.GetOne();
+      emitCodeU("li", tr, st_size);
+      emitCodeR("add", ra, sp, tr);
+      reg_alloc.freeAll();
+    }
   }
   state = GEN;
   for (auto& bb : function->basic_blocks) {
@@ -93,7 +101,7 @@ void CodeGenVisitor::visit(ReturnValueIR* return_value) {
     int reg = loadFromMen(return_value->ret_value, a0);
   }
   if (men_alloc.hasCall()) {
-    emitCodeI("lw", ra, sp, men_alloc.getStackSize() - 4);
+    emitLoad(ra, sp, men_alloc.getStackSize() - 4);
   }
   int st_size = men_alloc.getStackSize();
   if (st_size < 2048) {
@@ -173,7 +181,7 @@ void CodeGenVisitor::visit(BinaryOpInstrIR* binary_op_instr) {
       break;
   }
   int dmen = men_alloc.getLoc(binary_op_instr->toString());
-  emitCodeI("sw", rd, sp, dmen);
+  emitSave(rd, sp, dmen);
   reg_alloc.freeAll();
 }
 
@@ -191,8 +199,8 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
 
   int src = loadFromMen(load_instr->src);
   int dmen = men_alloc.getLoc(load_instr->toString());
-  emitCodeI("sw", src, sp, dmen);
-
+  // emitCodeI("sw", src, sp, dmen);
+  emitSave(src, sp, dmen);
   reg_alloc.freeAll();
 }
 
@@ -206,7 +214,8 @@ void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
     reg_alloc.freeAll();
   } else {
     int dmen = men_alloc.getLoc(store_instr->dst->toString());
-    emitCodeI("sw", src, sp, dmen);
+    // emitCodeI("sw", src, sp, dmen);
+    emitSave(src, sp, dmen);
     reg_alloc.freeAll();
   }
 }
@@ -239,14 +248,16 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
       loadFromMen(param, a0 + l);
     } else {
       int reg = loadFromMen(param);
-      emitCodeI("sw", reg, sp, (l - 8) * 4);
+      // emitCodeI("sw", reg, sp, (l - 8) * 4);
+      emitSave(reg, sp, (l - 8) * 4);
     }
     reg_alloc.freeAll();
     l++;
   }
   emitCodeIL("call", call_instr->function->name);
   if (call_instr->function->ret_type->tag != IRT_VOID) {
-    emitCodeI("sw", a0, sp, men_alloc.getLoc(call_instr->toString()));
+    // emitCodeI("sw", a0, sp, men_alloc.getLoc(call_instr->toString()));
+    emitSave(a0, sp, men_alloc.getLoc(call_instr->toString()));
   }
   reg_alloc.freeAll();
 }
@@ -296,9 +307,33 @@ void CodeGenVisitor::visit(GetElemPtrIR* gep_isntr) {
   emitCodeR("mul", width_r, width_r, index_r);
   emitCodeR("add", reg, reg, width_r);
   int dmen = men_alloc.getLoc(gep_isntr->toString());
-  emitCodeI("sw", reg, sp, dmen);
+  // emitCodeI("sw", reg, sp, dmen);
+  emitSave(reg, sp, dmen);
   men_alloc.setType(gep_isntr->toString(), array_type->elem_type.get());
   reg_alloc.freeAll();
+}
+
+void CodeGenVisitor::emitSave(int rs, int rd, int off) {
+  if (off < 2048 && off >= -2048) {
+    emitCodeI("sw", rs, rd, off);
+  } else {
+    int tr = reg_alloc.GetOne();
+    emitCodeU("li", tr, off);
+    emitCodeR("add", rd, rd, tr);
+    emitCodeI("sw", rs, rd, 0);
+    reg_alloc.free(tr);
+  }
+}
+void CodeGenVisitor::emitLoad(int rd, int rs, int off) {
+  if (off < 2048 && off >= -2048) {
+    emitCodeI("lw", rd, rs, off);
+  } else {
+    int tr = reg_alloc.GetOne();
+    emitCodeU("li", tr, off);
+    emitCodeR("add", rs, rs, tr);
+    emitCodeI("lw", rd, rs, 0);
+    reg_alloc.free(tr);
+  }
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
@@ -321,7 +356,8 @@ int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
         return a0 + loc;
       }
       loc -= 8;
-      emitCodeI("lw", reg, sp, men_alloc.getStackSize() + loc * 4);
+      // emitCodeI("lw", reg, sp, men_alloc.getStackSize() + loc * 4);
+      emitLoad(reg, sp, men_alloc.getStackSize() + loc * 4);
       return reg;
     case IRV_GALLOC:
       emitCodeIRL("la", reg, ((GlobalAllocIR*)value)->var->name);
@@ -329,7 +365,8 @@ int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
       return reg;
     default:
       loc = men_alloc.getLoc(value->toString());
-      emitCodeI("lw", reg, sp, loc);
+      // emitCodeI("lw", reg, sp, loc);
+      emitLoad(reg, sp, loc);
       return reg;
   }
 }
