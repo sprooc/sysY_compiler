@@ -182,6 +182,7 @@ void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
 void CodeGenVisitor::visit(JumpInstrIR* jump_instr) {
   if (state == SCAN) return;
   emitCodeIL("j", jump_instr->label->name);
+  reg_alloc.freeAll();
 }
 
 void CodeGenVisitor::visit(BrInstrIR* br_instr) {
@@ -189,6 +190,7 @@ void CodeGenVisitor::visit(BrInstrIR* br_instr) {
   int reg = loadFromMen(br_instr->cond);
   emitCodeIRL("bnez", reg, br_instr->true_label->name);
   emitCodeIL("j", br_instr->false_label->name);
+  reg_alloc.freeAll();
 }
 
 void CodeGenVisitor::visit(CallInstrIR* call_instr) {
@@ -213,6 +215,7 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   if (call_instr->function->ret_type->tag != IRT_VOID) {
     emitCodeI("sw", a0, sp, men_alloc.getLoc(call_instr->toString()));
   }
+  reg_alloc.freeAll();
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
