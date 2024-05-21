@@ -10,17 +10,18 @@ class CodeGenVisitor {
   enum { SCAN, GEN } state;
   RegAllocator reg_alloc;
   MenAllocator men_alloc;
-  void OutCode(std::string instr, const std::string* rd, const std::string* rs1,
+  void outCode(std::string instr, const std::string* rd, const std::string* rs1,
                const std::string* rs2);
-  void OutCode(std::string instr, const std::string* rd, const std::string* rs1,
+  void outCode(std::string instr, const std::string* rd, const std::string* rs1,
                int imm);
-  void OutCode(std::string instr, const std::string* rd, int imm);
-  void OutCode(std::string instr, const std::string* rd, const std::string* rs);
-  void OutCode(std::string instr);
-  void OutCode(std::string instr, int imm, const std::string* rs1,
+  void outCode(std::string instr, const std::string* rd, int imm);
+  void outCode(std::string instr, const std::string* rd, const std::string* rs);
+  void outCode(std::string instr);
+  void outCode(std::string instr, int imm, const std::string* rs1,
                const std::string* rs2);
-  void OutCodeOffset(std::string instr, const std::string* rd,
+  void outCodeOffset(std::string instr, const std::string* rd,
                      const std::string* rs1, int imm);
+  void outLabel(std::string label);
   void emitCodeR(std::string instr, int rd, int rs1, int rs2);
   void emitCodeI(std::string instr, int rd, int rs1, int imm);
   void emitCodeS(std::string instr, int imm, int rs1, int rs2);

@@ -26,6 +26,7 @@ void CodeGenVisitor::visit(FunctionIR* function) {
   men_alloc.exitFunxtion();
 }
 void CodeGenVisitor::visit(BasicBlockIR* basic_block) {
+  outLabel(basic_block->label->name);
   for (auto& value : basic_block->values) {
     visit((ValueIR*)value.get());
   }
@@ -54,7 +55,7 @@ void CodeGenVisitor::visit(ValueIR* value) {
 }
 void CodeGenVisitor::visit(ReturnValueIR* return_value) {
   if (state == SCAN) return;
-  
+
   int reg = loadFromMen(return_value->ret_value);
   emitCodePIRR("mv", a0, reg);
   emitCodeI("addi", sp, sp, men_alloc.getStackSize());
@@ -176,40 +177,40 @@ int CodeGenVisitor::loadFromMen(ValueIR* value) {
 }
 
 void CodeGenVisitor::emitCodeR(std::string instr, int rd, int rs1, int rs2) {
-  OutCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1),
+  outCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1),
           reg_alloc.GetName(rs2));
 }
 
 void CodeGenVisitor::emitCodeI(std::string instr, int rd, int rs1, int imm) {
   if (instr == "sw" || instr == "lw") {
-    OutCodeOffset(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1), imm);
+    outCodeOffset(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1), imm);
   } else {
-    OutCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1), imm);
+    outCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1), imm);
   }
 }
 
 void CodeGenVisitor::emitCodeS(std::string instr, int imm, int rs1, int rs2) {
-  OutCode(instr, imm, reg_alloc.GetName(rs1), reg_alloc.GetName(rs2));
+  outCode(instr, imm, reg_alloc.GetName(rs1), reg_alloc.GetName(rs2));
 }
 
 void CodeGenVisitor::emitCodeB(std::string instr, int imm, int rs1, int rs2) {
-  OutCode(instr, imm, reg_alloc.GetName(rs1), reg_alloc.GetName(rs2));
+  outCode(instr, imm, reg_alloc.GetName(rs1), reg_alloc.GetName(rs2));
 }
 
 void CodeGenVisitor::emitCodeU(std::string instr, int rd, int imm) {
-  OutCode(instr, reg_alloc.GetName(rd), imm);
+  outCode(instr, reg_alloc.GetName(rd), imm);
 }
 void CodeGenVisitor::emitCodeJ(std::string instr, int rd, int rs) {
-  OutCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs));
+  outCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs));
 }
 
-void CodeGenVisitor::emitCodePI(std::string instr) { OutCode(instr); }
+void CodeGenVisitor::emitCodePI(std::string instr) { outCode(instr); }
 
 void CodeGenVisitor::emitCodePIRR(std::string instr, int rd, int rs) {
-  OutCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs));
+  outCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs));
 }
 
-void CodeGenVisitor::OutCode(std::string instr, const std::string* rd,
+void CodeGenVisitor::outCode(std::string instr, const std::string* rd,
                              const std::string* rs1, const std::string* rs2) {
   out_file << "  " << instr;
   for (int i = 6 - instr.size(); i; i--) {
@@ -217,7 +218,7 @@ void CodeGenVisitor::OutCode(std::string instr, const std::string* rd,
   }
   out_file << *rd << ", " << *rs1 << ", " << *rs2 << std::endl;
 }
-void CodeGenVisitor::OutCode(std::string instr, const std::string* rd,
+void CodeGenVisitor::outCode(std::string instr, const std::string* rd,
                              const std::string* rs1, int rs2) {
   out_file << "  " << instr;
   for (int i = 6 - instr.size(); i; i--) {
@@ -226,7 +227,7 @@ void CodeGenVisitor::OutCode(std::string instr, const std::string* rd,
   out_file << *rd << ", " << *rs1 << ", " << rs2 << std::endl;
 }
 
-void CodeGenVisitor::OutCode(std::string instr, const std::string* rd,
+void CodeGenVisitor::outCode(std::string instr, const std::string* rd,
                              int imm) {
   out_file << "  " << instr;
   for (int i = 6 - instr.size(); i; i--) {
@@ -235,7 +236,7 @@ void CodeGenVisitor::OutCode(std::string instr, const std::string* rd,
   out_file << *rd << ", " << imm << std::endl;
 }
 
-void CodeGenVisitor::OutCode(std::string instr, const std::string* rd,
+void CodeGenVisitor::outCode(std::string instr, const std::string* rd,
                              const std::string* rs) {
   out_file << "  " << instr;
   for (int i = 6 - instr.size(); i; i--) {
@@ -244,14 +245,14 @@ void CodeGenVisitor::OutCode(std::string instr, const std::string* rd,
   out_file << *rd << ", " << *rs << std::endl;
 }
 
-void CodeGenVisitor::OutCode(std::string instr) {
+void CodeGenVisitor::outCode(std::string instr) {
   out_file << "  " << instr << std::endl;
 }
 
-void CodeGenVisitor::OutCode(std::string instr, int imm, const std::string* rs1,
+void CodeGenVisitor::outCode(std::string instr, int imm, const std::string* rs1,
                              const std::string* rs2) {}
 
-void CodeGenVisitor::OutCodeOffset(std::string instr, const std::string* rd,
+void CodeGenVisitor::outCodeOffset(std::string instr, const std::string* rd,
                                    const std::string* rs1, int imm) {
   out_file << "  " << instr;
   for (int i = 6 - instr.size(); i; i--) {
@@ -259,3 +260,5 @@ void CodeGenVisitor::OutCodeOffset(std::string instr, const std::string* rd,
   }
   out_file << *rd << ", " << imm << "(" << *rs1 << ")" << std::endl;
 }
+
+void CodeGenVisitor::outLabel(std::string label) { out_file << label << ":"; }
