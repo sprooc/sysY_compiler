@@ -5,7 +5,7 @@ arr:
   .text
   .globl main
 main:
-  addi  sp, sp, -48
+  addi  sp, sp, -32
 entry:
   addi  t0, sp, 0
   li    t2, 4
@@ -35,14 +35,7 @@ entry:
   add   t0, t0, t2
   sw    t0, 28(sp)
   sw    x0, 28(sp)
-  addi  t0, sp, 0
-  li    t2, 4
-  mul   t2, t2, x0
-  add   t0, t0, t2
-  sw    t0, 32(sp)
-  lw    t0, 32(sp)
-  sw    t0, 36(sp)
-  lw    a0, 36(sp)
-  addi  sp, sp, 48
+  li    a0, 1
+  addi  sp, sp, 32
   ret
 
