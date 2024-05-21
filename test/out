@@ -1,7 +1,7 @@
   .text
   .global main
 main:
-  sub   sp, sp, 16
+  addi  sp, sp, -16
   li    t0, 10
   sw    t0, 0(sp)
   lw    t0, 0(sp)
