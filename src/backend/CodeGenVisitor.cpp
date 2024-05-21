@@ -51,6 +51,12 @@ void CodeGenVisitor::visit(ValueIR* value) {
     case ValueTag::IRV_LOAD:
       visit((LoadInstrIR*)value);
       break;
+    case ValueTag::IRV_JUMP:
+      visit((JumpInstrIR*)value);
+      break;
+    case ValueTag::IRV_BR:
+      visit((BrInstrIR*)value);
+      break;
     default:
       // assert(0);
       break;
