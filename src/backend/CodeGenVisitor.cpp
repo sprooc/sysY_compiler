@@ -44,7 +44,8 @@ void CodeGenVisitor::visit(BasicBlockIR* basic_block) {
   for (auto& value : basic_block->values) {
     visit((ValueIR*)value.get());
   }
-}i
+}
+
 void CodeGenVisitor::visit(ValueIR* value) {
   switch (value->tag) {
     case ValueTag::IRV_RETURN:
