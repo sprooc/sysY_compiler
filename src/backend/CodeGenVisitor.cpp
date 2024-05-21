@@ -57,7 +57,7 @@ void CodeGenVisitor::visit(ReturnValueIR* return_value) {
 
   int loc = men_alloc.getLoc(return_value->ret_value->toString());
   emitCodeI("lw", a0, sp, loc);
-  emitCodeI("addi", sp, men_alloc.getStackSize());
+  emitCodeI("addi", sp, sp, men_alloc.getStackSize());
 
   emitCodePI("ret");
 }
