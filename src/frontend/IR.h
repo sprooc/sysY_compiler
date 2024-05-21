@@ -111,6 +111,7 @@ class VariableIR : public ValueIR {
       : ValueIR(ValueTag::IRV_VARIABLE), type(t), name(n) {
     id = id_alloc++;
   }
+  std::string toString() { return name; }
   void PrintIR() const override {};
   void PrintName() const override { out_file << name << "_" << id; };
 };
