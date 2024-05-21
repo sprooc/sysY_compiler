@@ -18,3 +18,11 @@ fun @half(@x: i32): i32 {
 half:
   addi  sp, sp, -16
 L0:
+  lw    t0, -16(sp)
+  sw    t0, 0(sp)
+  lw    t0, 0(sp)
+  sw    t0, 4(sp)
+  lw    t0, 4(sp)
+  mv    a0, t0
+  addi  sp, sp, 16
+  ret
