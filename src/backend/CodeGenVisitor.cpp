@@ -142,7 +142,9 @@ void CodeGenVisitor::visit(BinaryOpInstrIR* binary_op_instr) {
 void CodeGenVisitor::visit(AllocInstrIR* alloc_instr) {
   if (state == SCAN) {
     alloc_instr->PrintName();
-    men_alloc.alloc(alloc_instr->var->toString(), alloc_instr->var->type->getSize());
+    std::string name = alloc_instr->var->toString();
+    int size = alloc_instr->var->type->getSize();
+    men_alloc.alloc(name, size);
   }
 }
 void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
