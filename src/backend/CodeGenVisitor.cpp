@@ -228,6 +228,10 @@ void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
   outLabel(galloc_instr->var->name);
   if (!galloc_instr->init_val) {
     out_file << "  .zero " << size << std::endl;
+  } else {
+    out_file << "  .word ";
+    galloc_instr->var->PrintName();
+    out_file << std::endl;
   }
 }
 
