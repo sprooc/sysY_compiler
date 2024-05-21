@@ -29,3 +29,8 @@ main:
   addi  sp, sp, -16
   sw    ra, 12(sp)
 entry:
+  lw    t0, 0(sp)
+  mv    a0, t0
+  lw    ra, 12(sp)
+  addi  sp, sp, 16
+  ret
