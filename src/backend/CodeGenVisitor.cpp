@@ -54,13 +54,11 @@ void CodeGenVisitor::visit(ValueIR* value) {
 }
 void CodeGenVisitor::visit(ReturnValueIR* return_value) {
   if (state == SCAN) return;
-  if (return_value->ret_value->tag == IRV_INTEGER) {
-    emitCodeU("li", a0, ((IntegerValueIR*)return_value->ret_value)->number);
-  } else {
-    int reg = ((ValueIR*)(return_value->ret_value))->reg;
 
-    emitCodePIRR("mv", a0, reg);
-  }
+  int loc = men_alloc.getLoc(return_value->ret_value->toString());
+  emitCodeI("lw", a0, sp, loc);
+  emitCodeI("addi", sp, men_alloc.getStackSize());
+
   emitCodePI("ret");
 }
 void CodeGenVisitor::visit(IntegerValueIR* integer_value) {
