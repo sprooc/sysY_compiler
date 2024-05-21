@@ -8,6 +8,12 @@ int inc() {
 
 
 int main() {
-  
-  return 1;
+  int i = 0;
+  while (i < 10) {
+    inc();
+    int a = 1;
+    a = a + 2;
+    i = i + 1;
+  }
+  return 0;
 }
