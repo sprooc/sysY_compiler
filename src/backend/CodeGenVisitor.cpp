@@ -181,9 +181,16 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
 void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
   if (state == SCAN) return;
   int src = loadFromMen(store_instr->src);
-  int dmen = men_alloc.getLoc(store_instr->dst->toString());
-  emitCodeI("sw", src, sp, dmen);
-  reg_alloc.freeAll();
+  if (store_instr->src->tag == IRV_GALLOC) {
+    int reg = reg_alloc.GetOne();
+    emitCodeIRL("la", reg, ((GlobalAllocIR*)store_instr->src)->var->name);
+    emitCodeI("sw", src, 0, reg);
+    reg_alloc.freeAll();
+  } else {
+    int dmen = men_alloc.getLoc(store_instr->dst->toString());
+    emitCodeI("sw", src, sp, dmen);
+    reg_alloc.freeAll();
+  }
 }
 
 void CodeGenVisitor::visit(JumpInstrIR* jump_instr) {

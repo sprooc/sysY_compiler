@@ -10,10 +10,7 @@ global @a_0 = alloc i32, 10
 fun @inc(): i32 {
 %L0:
   %0 = load @a_0
-  %1 = add %0, 1
-  store %1, @a_0
-  %2 = load @a_0
-  ret %2
+  ret %0
 }
   .data
   .globl a
@@ -27,8 +24,7 @@ L0:
   la    t0, a
   lw    t0, 0(t0)
   sw    t0, 0(sp)
-  lw    t0, 0(sp)
-  li    t1, 1
-  add   t0, t0, t1
-  sw    t0, 4(sp)
-  lw    t0, 4(sp)
+  lw    a0, 0(sp)
+  addi  sp, sp, 16
+  ret
+
