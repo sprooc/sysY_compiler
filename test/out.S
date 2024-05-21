@@ -155,8 +155,8 @@ entry:
   sw    a0, 28(sp)
   call  sum2
   sw    a0, 4(sp)
-  lw    a1, 4(sp)
-  sw    a1, 0(sp)
+  lw    t0, 4(sp)
+  sw    t0, 0(sp)
   lw    t0, 0(sp)
   sw    t0, 8(sp)
   lw    a0, 8(sp)
