@@ -5,8 +5,12 @@
 // TODO : fix memory leak
 
 void CodeGenVisitor::visit(ProgramIR* program) {
+  out_file << "  .data" << std::endl;
+  for (auto& galloc : program->global_vars) {
+    visit((GlobalAllocIR*)galloc.get());
+  }
+  out_file << "  .text" << std::endl;
   for (auto& function : program->functions) {
-    out_file << "  .text" << std::endl;
     visit((FunctionIR*)function.get());
   }
 }
@@ -35,7 +39,6 @@ void CodeGenVisitor::visit(FunctionIR* function) {
 void CodeGenVisitor::visit(BasicBlockIR* basic_block) {
   if (state == GEN) {
     outLabel(basic_block->label->name);
-    out_file << std::endl;
   }
   for (auto& value : basic_block->values) {
     visit((ValueIR*)value.get());
@@ -218,6 +221,15 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   }
   reg_alloc.freeAll();
 }
+void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
+  out_file << "  .text" << std::endl;
+  out_file << "  .global " << galloc_instr->var->name << std::endl;
+  int size = galloc_instr->var->type->getSize();
+  outLabel(galloc_instr->var->name);
+  if (!galloc_instr->init_val) {
+    out_file << "  .zero " << size << std::endl;
+  }
+}
 
 int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
   if (reg == 0) {
@@ -235,7 +247,6 @@ int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
       loc = ((ParamIR*)value)->loc;
       if (loc < 8) {
         return a0 + loc;
-        
       }
       loc -= 8;
       emitCodeI("lw", reg, sp, men_alloc.getStackSize() + loc * 4);
@@ -353,4 +364,6 @@ void CodeGenVisitor::outCode(std::string instr, std::string label) {
   }
   out_file << label << std::endl;
 }
-void CodeGenVisitor::outLabel(std::string label) { out_file << label << ":"; }
+void CodeGenVisitor::outLabel(std::string label) {
+  out_file << label << ":" << std::endl;
+}

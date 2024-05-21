@@ -1,10 +1,16 @@
-int fib(int n) {
-  if (n < 2) {
-    return n;
-  }
-  return fib(n - 1) + fib(n - 2);
-}
+int x;
+const int y = 10;
+const int z = y + 1;
+int init = 1;
 
 int main() {
-  return fib(2);
+  putint(x);
+  putch(32);
+  putint(y);
+  putch(32);
+  putint(z);
+  putch(32);
+  putint(init);
+  putch(10);
+  return 0;
 }
