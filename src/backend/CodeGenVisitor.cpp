@@ -214,19 +214,15 @@ int CodeGenVisitor::loadFromMen(ValueIR* value) {
         return a0 + reg;
       }
       loc -= 8;
-      int st_size = men_alloc.getStackSize();
       reg = reg_alloc.GetOne();
-      emitCodeI("lw", reg, sp, st_size + loc * 4);
+      emitCodeI("lw", reg, sp, men_alloc.getStackSize() + loc * 4);
       return reg;
-      break;
     default:
       loc = men_alloc.getLoc(value->toString());
       reg = reg_alloc.GetOne();
       emitCodeI("lw", reg, sp, loc);
       return reg;
-      break;
   }
-  return reg;
 }
 
 void CodeGenVisitor::emitCodeR(std::string instr, int rd, int rs1, int rs2) {
