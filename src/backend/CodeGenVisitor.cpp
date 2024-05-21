@@ -202,6 +202,9 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   }
 
   emitCodeIL("call", call_instr->function->name);
+  if (call_instr->function->ret_type->tag != IRT_VOID) {
+    emitCodeI("sw", a0, men_alloc.getLoc(call_instr->toString());
+  }
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value) {
@@ -224,8 +227,6 @@ int CodeGenVisitor::loadFromMen(ValueIR* value) {
       reg = reg_alloc.GetOne();
       emitCodeI("lw", reg, sp, men_alloc.getStackSize() + loc * 4);
       return reg;
-    case IRV_CALL:
-      return a0;
     default:
       loc = men_alloc.getLoc(value->toString());
       reg = reg_alloc.GetOne();

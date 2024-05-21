@@ -47,6 +47,7 @@ L0:
 f:
   addi  sp, sp, 0
 L1:
+  addi  sp, sp, 0
   ret
 
   .text
