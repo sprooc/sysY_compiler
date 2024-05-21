@@ -15,11 +15,11 @@ void Module::preLoad() {
   std::vector<ParamIR*> params[] = {
       std::vector<ParamIR*>(),
       std::vector<ParamIR*>(),
-      std::vector<ParamIR*>({new ParamIR(new PointerType(new Int32Type()), par_name)}),
-      std::vector<ParamIR*>({new ParamIR(new Int32Type(), par_name)}),
-      std::vector<ParamIR*>({new ParamIR(new Int32Type(), par_name)}),
-      std::vector<ParamIR*>({new ParamIR(new Int32Type(), par_name),
-                             new ParamIR(new PointerType(new Int32Type()), par_name)}),
+      std::vector<ParamIR*>({new ParamIR(new PointerType(new Int32Type()), par_name, 0)}),
+      std::vector<ParamIR*>({new ParamIR(new Int32Type(), par_name, 0)}),
+      std::vector<ParamIR*>({new ParamIR(new Int32Type(), par_name, 0)}),
+      std::vector<ParamIR*>({new ParamIR(new Int32Type(), par_name, 0),
+                             new ParamIR(new PointerType(new Int32Type()), par_name, 1)}),
       std::vector<ParamIR*>(),
       std::vector<ParamIR*>()};
   for (int i = 0; i < N_PLOAD; i++) {
