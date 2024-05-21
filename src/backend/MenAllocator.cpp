@@ -1,5 +1,4 @@
 #include "MenAllocator.h"
-#include <iostream>
 void MenAllocator::enterFunction() {
   men_size = 0;
   men_table = std::make_unique<unordered_map<string, int>>();
@@ -11,7 +10,6 @@ void MenAllocator::exitFunxtion() {
   men_table.reset();
 }
 void MenAllocator::alloc(string name, int size) {
-  std::cout << "|" << name << "|" << std::endl;
   men_table->emplace(name, men_size);
   men_size += size;
 }
