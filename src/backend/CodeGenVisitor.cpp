@@ -222,6 +222,8 @@ int CodeGenVisitor::loadFromMen(ValueIR* value) {
       reg = reg_alloc.GetOne();
       emitCodeI("lw", reg, sp, men_alloc.getStackSize() + loc * 4);
       return reg;
+    case IRV_CALL:
+      return a0;
     default:
       loc = men_alloc.getLoc(value->toString());
       reg = reg_alloc.GetOne();
