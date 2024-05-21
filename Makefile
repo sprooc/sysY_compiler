@@ -60,7 +60,6 @@ git:
 	git commit -m "run"
 
 asm: run
-	riscv64-unknown-elf-as -o test/out.o test/out -m32
-	riscv64-unknown-elf-ld -o test/a.out test/out.o -m32
+	riscv64-unknown-elf-gcc -o test/a.out test/out  -march=rv32im -mabi=ilp32
 	qemu-riscv32-static test/a.out
 
