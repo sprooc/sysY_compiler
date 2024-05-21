@@ -185,8 +185,9 @@ void CodeGenVisitor::emitCodeR(std::string instr, int rd, int rs1, int rs2) {
 void CodeGenVisitor::emitCodeI(std::string instr, int rd, int rs1, int imm) {
   if (instr == "sw" || instr == "lw") {
     OutCodeOffset(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1), imm);
+  } else {
+    OutCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1), imm);
   }
-  OutCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1), imm);
 }
 
 void CodeGenVisitor::emitCodeS(std::string instr, int imm, int rs1, int rs2) {
