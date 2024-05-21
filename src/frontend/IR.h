@@ -66,6 +66,7 @@ class ValueIR : public BaseIR {
   int reg;
   void PrintIR() const override {};
   virtual void PrintName() const {};
+  virtual std::string toString() const { return "empty"; }
   bool isConst() { return tag == IRV_INTEGER || tag == IRV_FLOAT; }
   bool isInstr() { return !isConst() && tag != IRV_VARIABLE; }
 };
@@ -111,7 +112,7 @@ class VariableIR : public ValueIR {
       : ValueIR(ValueTag::IRV_VARIABLE), type(t), name(n) {
     id = id_alloc++;
   }
-  std::string toString() { return name; }
+  std::string toString() const override { return name; }
   void PrintIR() const override {};
   void PrintName() const override { out_file << name << "_" << id; };
 };
@@ -225,6 +226,7 @@ class GetElemPtrIR : public InstrIR {
       : ptr(p), index(id), name(n) {
     this->tag = IRV_GEP;
   }
+  std::string toString() const override { return name; }
   void PrintName() const override { out_file << name; }
   void PrintIR() const override {
     out_file << name << " = getelemptr ";
@@ -244,6 +246,7 @@ class GetPtrInstrIR : public InstrIR {
       : ptr(p), index(id), name(n) {
     this->tag = IRV_GEP;
   }
+  std::string toString() const override { return name; }
   void PrintName() const override { out_file << name; }
   void PrintIR() const override {
     out_file << name << " = getptr ";
@@ -257,6 +260,7 @@ class AllocInstrIR : public InstrIR {
  public:
   VariableIR* var;
   AllocInstrIR(VariableIR* v) : var(v) { this->tag = IRV_ALLOC; }
+  std::string toString() const override { return var->toString(); }
   void PrintName() const override {
     out_file << "@";
     var->PrintName();
@@ -314,6 +318,7 @@ class LoadInstrIR : public InstrIR {
     out_file << name << " = load ";
     src->PrintName();
   }
+  std::string toString() const override { return name; }
 };
 
 class BinaryOpInstrIR : public InstrIR {
@@ -325,6 +330,7 @@ class BinaryOpInstrIR : public InstrIR {
   OpType op_type;
   ValueIR* left;
   ValueIR* right;
+  std::string toString() const override { return name; }
   void PrintName() const override { out_file << name; }
   void PrintIR() const override {
     switch (op_type) {

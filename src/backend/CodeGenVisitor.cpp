@@ -75,7 +75,7 @@ void CodeGenVisitor::visit(IntegerValueIR* integer_value) {
 }
 void CodeGenVisitor::visit(BinaryOpInstrIR* binary_op_instr) {
   if (state == SCAN) {
-    men_alloc.alloc(binary_op_instr->name, 4);
+    men_alloc.alloc(binary_op_instr->toString(), 4);
     return;
   }
   if (binary_op_instr->left->tag == IRV_INTEGER) {
@@ -139,14 +139,14 @@ void CodeGenVisitor::visit(BinaryOpInstrIR* binary_op_instr) {
 
 void CodeGenVisitor::visit(AllocInstrIR* alloc_instr) {
   if (state == SCAN) {
-    men_alloc.alloc(alloc_instr->var->toString(),
+    men_alloc.alloc(alloc_instr->toString(),
                     alloc_instr->var->type->getSize());
     return;
   }
 }
 void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
   if (state == SCAN) {
-    men_alloc.alloc(load_instr->name, 4);
+    men_alloc.alloc(load_instr->toString(), 4);
     return;
   }
 }

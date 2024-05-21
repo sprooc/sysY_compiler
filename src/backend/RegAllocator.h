@@ -50,4 +50,8 @@ class RegAllocator {
     }
     return -1;
   }
+
+  void freeAll() {
+    upper = 1;
+  }
 };
