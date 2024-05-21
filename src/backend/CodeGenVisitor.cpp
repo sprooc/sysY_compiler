@@ -263,7 +263,7 @@ void CodeGenVisitor::visit(GetElemPtrIR* gep_isntr) {
   int index_r = loadFromMen(gep_isntr->index);
   int width_r = reg_alloc.GetOne();
   emitCodeU("li", width_r, type_size);
-  emitCodeI("mul", width_r, width_r, index_r);
+  emitCodeR("mul", width_r, width_r, index_r);
   emitCodeI("add", reg, reg, width_r);
   int dmen = men_alloc.getLoc(gep_isntr->toString());
   emitCodeI("sw", reg, sp, dmen);
