@@ -23,3 +23,10 @@ main:
   li    t1, 1
   mv    a0, x0
   ret
+  sub   sp, sp, 16
+  li    t2, 10
+  li    t3, 1
+  li    t4, 1
+  add   t4, x0, t4
+  mv    a0, x0
+  ret
