@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <stack>
 #include <string>
 #include <utility>
 #include <vector>
@@ -34,7 +35,12 @@ typedef enum {
   IRV_BR,
   IRV_JUMP,
   IRV_PARAM,
-  IRV_CALL
+  IRV_CALL,
+  IRV_DECL,
+  IRV_GALLOC,
+  IRV_GEP,
+  IRV_AGGREGATE,
+  IRV_GP
 } ValueTag;
 
 typedef enum {
@@ -81,12 +87,14 @@ class InstrIR : public ValueIR {
 class ParamIR : public ValueIR {
  public:
   std::string name;
-  Type type;
+  std::unique_ptr<Type> type;
   ParamIR() : ValueIR(IRV_PARAM) {}
   ParamIR(std::string& n) : ValueIR(IRV_PARAM), name(n) {}
+  ParamIR(Type* t, std::string& n)
+      : ValueIR(IRV_PARAM), name(n), type(std::unique_ptr<Type>(t)) {}
   void PrintName() const override { out_file << "@" << name; };
   void PrintIR() const override {
-    out_file << "@" << name << ": " << type.toString();
+    out_file << "@" << name << ": " << type->toString();
   };
 };
 
@@ -94,12 +102,12 @@ class VariableIR : public ValueIR {
  public:
   std::string name;
   int id;
-  Type type;
+  Type* type;
   VariableIR() : ValueIR(ValueTag::IRV_VARIABLE) { id = id_alloc++; }
   VariableIR(std::string& n) : ValueIR(ValueTag::IRV_VARIABLE), name(n) {
     id = id_alloc++;
   }
-  VariableIR(Type t, std::string n)
+  VariableIR(Type* t, std::string n)
       : ValueIR(ValueTag::IRV_VARIABLE), type(t), name(n) {
     id = id_alloc++;
   }
@@ -117,6 +125,133 @@ class IntegerValueIR : public ConstantIR {
   void PrintName() const override { out_file << number; };
 };
 
+class AggregateValueIR : public ValueIR {
+ public:
+  std::unique_ptr<std::vector<int>> arr_shape;
+  std::unique_ptr<std::vector<ValueIR*>> arr_elems;
+  std::unique_ptr<std::vector<int>> arr_width;
+  std::unique_ptr<std::stack<int>> depth_stack;
+  int depth = 0;
+  int ploc = 0;
+  int loc = 0;
+  AggregateValueIR() : ValueIR(IRV_AGGREGATE) {}
+  AggregateValueIR(std::vector<int>* shape, std::vector<ValueIR*>* elems)
+      : ValueIR(IRV_AGGREGATE) {
+    arr_shape = std::unique_ptr<std::vector<int>>(shape);
+    arr_elems = std::unique_ptr<std::vector<ValueIR*>>(elems);
+  }
+  AggregateValueIR(std::vector<int>* shape) : ValueIR(IRV_AGGREGATE) {
+    arr_shape = std::unique_ptr<std::vector<int>>(shape);
+    int n = 1;
+    int size = arr_shape->size();
+    arr_width = std::make_unique<std::vector<int>>(size);
+    arr_width->at(size - 1) = 4;
+    for (int i = size - 1; i >= 0; i--) {
+      n *= arr_shape->at(i);
+      if (i == size - 1) {
+        arr_width->at(i) = arr_shape->at(i);
+      } else {
+        arr_width->at(i) = arr_shape->at(i) * arr_width->at(i + 1);
+      }
+    }
+    auto zero = new IntegerValueIR(0);
+    arr_elems = std::make_unique<std::vector<ValueIR*>>(n, zero);
+    depth_stack = std::make_unique<std::stack<int>>();
+    depth = loc = 0;
+  }
+  void pushValue(ValueIR* v) { arr_elems->at(loc++) = v; }
+  void inBrace() {
+    int size = arr_shape->size();
+    int nd = depth + 1;
+    for (int i = size - 1; i >= depth; i--) {
+      if (loc % arr_width->at(i) != 0) {
+        nd = i + 1;
+        break;
+      }
+    }
+    depth_stack->push(depth);
+    depth = nd;
+    ploc = loc;
+  }
+  void outBrace() {
+    auto zero = new IntegerValueIR(0);
+    int size = arr_width->at(0);
+    while (loc < size && (loc % arr_width->at(depth) != 0 || ploc == loc)) {
+      arr_elems->at(loc++) = zero;
+    }
+    if (!depth_stack->empty()) {
+      depth = depth_stack->top();
+      depth_stack->pop();
+    }
+  }
+  void PrintIR() const override {
+    dfsPrint(0, arr_shape->size() - 1, 0, arr_elems->size());
+  }
+  void PrintName() const override { PrintIR(); }
+
+  void dfsPrint(int level, int maxD, int l, int r) const {
+    out_file << "{";
+    if (level == maxD) {
+      int w = arr_shape->at(level);
+      for (int i = 0; i < w; i++) {
+        arr_elems->at(l + i)->PrintName();
+        if (i != w - 1) {
+          out_file << ", ";
+        }
+      }
+    } else {
+      int seg = arr_shape->at(level);
+      int w = (r - l) / seg;
+      for (int i = 0; i < seg; i++) {
+        dfsPrint(level + 1, maxD, l + w * i, l + w * (i + 1));
+        if (i != seg - 1) {
+          out_file << ", ";
+        }
+      }
+    }
+
+    out_file << "}";
+  }
+};
+
+class GetElemPtrIR : public InstrIR {
+ public:
+  std::string name;
+  ValueIR* ptr;
+  ValueIR* index;
+  GetElemPtrIR() { this->tag = IRV_GEP; }
+  GetElemPtrIR(ValueIR* p, ValueIR* id, std::string n)
+      : ptr(p), index(id), name(n) {
+    this->tag = IRV_GEP;
+  }
+  void PrintName() const override { out_file << name; }
+  void PrintIR() const override {
+    out_file << name << " = getelemptr ";
+    ptr->PrintName();
+    out_file << ", ";
+    index->PrintName();
+  }
+};
+
+class GetPtrInstrIR : public InstrIR {
+ public:
+  std::string name;
+  ValueIR* ptr;
+  ValueIR* index;
+  GetPtrInstrIR() { this->tag = IRV_GP; }
+  GetPtrInstrIR(ValueIR* p, ValueIR* id, std::string n)
+      : ptr(p), index(id), name(n) {
+    this->tag = IRV_GEP;
+  }
+  void PrintName() const override { out_file << name; }
+  void PrintIR() const override {
+    out_file << name << " = getptr ";
+    ptr->PrintName();
+    out_file << ", ";
+    index->PrintName();
+  }
+};
+
 class AllocInstrIR : public InstrIR {
  public:
   VariableIR* var;
@@ -128,7 +263,25 @@ class AllocInstrIR : public InstrIR {
   void PrintIR() const override {
     out_file << "@";
     var->PrintName();
-    out_file << " = alloc " << var->type.toString();
+    out_file << " = alloc " << var->type->toString();
+  }
+};
+
+class GlobalAllocIR : public ValueIR {
+ public:
+  VariableIR* var;
+  ValueIR* init_val;
+  GlobalAllocIR(VariableIR* v, ValueIR* val)
+      : var(v), init_val(val), ValueIR(IRV_GALLOC) {}
+  void PrintName() const override {
+    out_file << "@";
+    var->PrintName();
+  }
+  void PrintIR() const override {
+    out_file << "global @";
+    var->PrintName();
+    out_file << " = alloc " << var->type->toString() << ", ";
+    init_val->PrintName();
   }
 };
 
@@ -165,6 +318,8 @@ class LoadInstrIR : public InstrIR {
 class BinaryOpInstrIR : public InstrIR {
  public:
   BinaryOpInstrIR() { this->tag = ValueTag::IRV_BOP; }
+  BinaryOpInstrIR(OpType op, ValueIR* l, ValueIR* r, std::string n)
+      : op_type(op), left(l), right(r), name(n) {}
   std::string name;
   OpType op_type;
   ValueIR* left;
@@ -222,7 +377,10 @@ class BinaryOpInstrIR : public InstrIR {
 
 class ReturnValueIR : public InstrIR {
  public:
-  ReturnValueIR() { this->tag = ValueTag::IRV_RETURN; }
+  ReturnValueIR() {
+    this->tag = ValueTag::IRV_RETURN;
+    ret_value = nullptr;
+  }
   ValueIR* ret_value;
   void PrintIR() const override {
     out_file << "ret ";
@@ -285,6 +443,11 @@ class FunctionIR : public BaseIR {
  public:
   // FunctionIR& operator=(FunctionIR&&) = default;
   // ~FunctionIR() override = default;
+  FunctionIR() {}
+  FunctionIR(Type* rt, std::string n) {
+    ret_type = std::unique_ptr<Type>(rt);
+    name = n;
+  }
   std::unique_ptr<Type> ret_type;
   std::string name;
   std::vector<std::unique_ptr<ParamIR>> params;
@@ -312,6 +475,30 @@ class FunctionIR : public BaseIR {
   }
 };
 
+class DeclInstrIR : public InstrIR {
+ public:
+  FunctionIR* function;
+  DeclInstrIR() { this->tag = IRV_DECL; }
+  DeclInstrIR(FunctionIR* f) : function(f) { this->tag = IRV_DECL; }
+  void PrintName() const override {}
+  void PrintIR() const override {
+    out_file << "decl ";
+    function->PrintName();
+    out_file << "(";
+    int n_param = function->params.size();
+    for (int i = 0; i < n_param; i++) {
+      out_file << function->params[i]->type->toString();
+      if (i != n_param - 1) {
+        out_file << ", ";
+      }
+    }
+    out_file << ")";
+    if (function->ret_type->tag != IRT_VOID) {
+      out_file << ": " << function->ret_type->toString();
+    }
+    out_file << std::endl;
+  }
+};
 class CallInstrIR : public InstrIR {
  public:
   std::string name;
@@ -344,8 +531,16 @@ class CallInstrIR : public InstrIR {
 class ProgramIR : public BaseIR {
  public:
   std::vector<std::unique_ptr<FunctionIR>> functions;
-
+  std::vector<std::unique_ptr<DeclInstrIR>> decls;
+  std::vector<std::unique_ptr<GlobalAllocIR>> global_vars;
   void PrintIR() const override {
+    for (auto& decl : decls) {
+      decl->PrintIR();
+    }
+    for (auto& gvar : global_vars) {
+      gvar->PrintIR();
+      out_file << std::endl;
+    }
     for (auto& function : functions) {
       function->PrintIR();
     }

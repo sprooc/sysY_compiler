@@ -1,4 +1,4 @@
-MAKEFLAGS += -j8
+MAKEFLAGS += -j20
 TOP_DIR := $(shell pwd)
 SRC_DIR := $(TOP_DIR)/src
 BUILD_DIR ?= $(TOP_DIR)/build
@@ -28,7 +28,7 @@ antlr:
 compile: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(BUILD_DIR)/$(TARGET_EXEC)
 
-run: compile
+run: compile git
 	$(BUILD_DIR)/$(TARGET_EXEC) -i test/test.sysy -o out
 
 test:
@@ -38,7 +38,7 @@ debug:
 	gdb $(BUILD_DIR)/$(TARGET_EXEC) -x test/init.gdb
 
 
-.PHONY: test 
+.PHONY: test llvm
 
 MODE = koopa
 LV = 1
@@ -48,3 +48,13 @@ autotest:
 
 clean:
 	rm -f $(OBJS)
+
+llvm: test
+	koopac out > out.ll
+	llvm-as out.ll -o out.bc
+	lli out.bc
+	echo $?
+
+git:
+	git add .
+	git commit -m "run"

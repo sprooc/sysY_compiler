@@ -1,5 +1,6 @@
 #ifndef MODULE_H
 #define MODULE_H
+#include <assert.h>
 
 #include <memory>
 #include <stack>
@@ -21,21 +22,23 @@ class Module {
   std::unique_ptr<std::stack<Label*>> continue_stack;
   std::unique_ptr<std::stack<Label*>> break_stack;
   std::unique_ptr<std::unordered_map<std::string, FunctionIR*>> function_table;
+  std::unique_ptr<std::stack<AggregateValueIR*>> aggregate_stack;
+  bool is_lval = false;
+  bool in_global = true;
 
  public:
   Module() : curr_basic_block(nullptr), program_ir(new ProgramIR()) {
     curr_scope = new Scope(nullptr);
-    true_stack = std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
-    false_stack = std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
-    next_stack = std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
-    state_stack =
-        std::unique_ptr<std::stack<ExpState>>(new std::stack<ExpState>());
-    continue_stack =
-        std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
-    break_stack = std::unique_ptr<std::stack<Label*>>(new std::stack<Label*>());
+    true_stack = std::make_unique<std::stack<Label*>>();
+    false_stack = std::make_unique<std::stack<Label*>>();
+    next_stack = std::make_unique<std::stack<Label*>>();
+    state_stack = std::make_unique<std::stack<ExpState>>();
+    continue_stack = std::make_unique<std::stack<Label*>>();
+    break_stack = std::make_unique<std::stack<Label*>>();
     function_table =
-        std::unique_ptr<std::unordered_map<std::string, FunctionIR*>>(
-            new std::unordered_map<std::string, FunctionIR*>());
+        std::make_unique<std::unordered_map<std::string, FunctionIR*>>();
+    aggregate_stack = std::make_unique<std::stack<AggregateValueIR*>>();
+    preLoad();
   }
   ~Module() { delete curr_scope; }
 
@@ -61,7 +64,9 @@ class Module {
   }
 
   void pushValueToBasicBlock(ValueIR* value) {
-    assert(curr_basic_block);
+    if (!curr_basic_block) {
+      return;
+    }
     if (curr_basic_block->is_end) {
       pushBasicBlock(new BasicBlockIR(new Label()));
     }
@@ -77,6 +82,7 @@ class Module {
   }
 
   void pushFunction(FunctionIR* function) {
+    in_global = false;
     auto it = function_table->find(function->name);
     if (it != function_table->end()) {
       std::cerr << "Error: redefine function: " << function->name << std::endl;
@@ -85,6 +91,16 @@ class Module {
     function_table->emplace(function->name, function);
     curr_function = function;
     program_ir->functions.push_back(std::unique_ptr<FunctionIR>(function));
+  }
+
+  void declFunction(FunctionIR* function) {
+    auto it = function_table->find(function->name);
+    if (it != function_table->end()) {
+      std::cerr << "Error: redefine function: " << function->name << std::endl;
+      exit(1);
+    }
+    function_table->emplace(function->name, function);
+    program_ir->decls.push_back(std::make_unique<DeclInstrIR>(function));
   }
 
   FunctionIR* getFunction(const std::string& name) const {
@@ -141,6 +157,33 @@ class Module {
   void popBreakStack() { break_stack->pop(); }
 
   Label* peekBreakStack() { return break_stack->top(); }
+
+  void preLoad();
+
+  bool inGlobal() { return in_global; }
+
+  void pushGlobalVar(GlobalAllocIR* galloc) {
+    program_ir->global_vars.push_back(std::unique_ptr<GlobalAllocIR>(galloc));
+  }
+
+  void endFunction() {
+    if (curr_basic_block->values.empty() ||
+        curr_basic_block->values.back()->tag != IRV_RETURN) {
+      endBasicBlock(new ReturnValueIR());
+    }
+  }
+
+  void pushAggregate(AggregateValueIR* aggregate) {
+    aggregate_stack->push(aggregate);
+  }
+
+  void popAggregate() { aggregate_stack->pop(); }
+
+  AggregateValueIR* peekAggregate() { return aggregate_stack->top(); }
+
+  void setLval(bool b) { is_lval = b; }
+
+  bool getLval() { return is_lval; }
 };
 
 #endif

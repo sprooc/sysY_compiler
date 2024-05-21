@@ -38,11 +38,24 @@ std::any IRGenVisitor::visitFuncDef(SysYParser::FuncDefContext* ctx) {
     for (auto* param : ctx->funcFParams()->funcFParam()) {
       std::string var_name = param->IDENT()->getText();
       ParamIR* param_ir = new ParamIR(var_name);
-      if (param->bType()->INT()) {
-        param_ir->type = Int32Type();
+      Type* type = new Int32Type();
+      std::vector<int>* arr_shape = new std::vector<int>();
+      for (auto* exp : param->exp()) {
+        int len =
+            ((IntegerValueIR*)std::any_cast<ValueIR*>(visitExp(exp)))->number;
+        arr_shape->push_back(len);
       }
+      int size = arr_shape->size();
+      for (int i = size - 1; i >= 0; i--) {
+        type = new ArrayType(arr_shape->at(i), type);
+      }
+      if (!param->L_BRACKT().empty()) {
+        type = new PointerType(type);
+      }
+      param_ir->type = std::unique_ptr<Type>(type);
+
       function_ir->params.push_back(std::unique_ptr<ParamIR>(param_ir));
-      VariableIR* var_ir = new VariableIR(param_ir->type, var_name);
+      VariableIR* var_ir = new VariableIR(param_ir->type.get(), var_name);
       AllocInstrIR* alloc_ir = new AllocInstrIR(var_ir);
       ir_module.putVar(var_ir->name, alloc_ir);
       ir_module.pushValueToBasicBlock(alloc_ir);
@@ -56,6 +69,7 @@ std::any IRGenVisitor::visitFuncDef(SysYParser::FuncDefContext* ctx) {
   } else {
     visitBlock(ctx->block());
   }
+  ir_module.endFunction();
   ir_module.popScope();
   return nullptr;
 }
@@ -81,8 +95,9 @@ std::any IRGenVisitor::visitBlock(SysYParser::BlockContext* ctx) {
 std::any IRGenVisitor::visitStmt(SysYParser::StmtContext* ctx) {
   if (ctx->ASSIGN()) {
     ValueIR* rval = std::any_cast<ValueIR*>(visitExp(ctx->exp()));
-    std::string var = ctx->lVal()->IDENT()->getText();
-    ValueIR* lval = ir_module.getVar(var);
+    ir_module.setLval(true);
+    ValueIR* lval = std::any_cast<ValueIR*>(visitLVal(ctx->lVal()));
+    ir_module.setLval(false);
     StoreInstrIR* store_ir = new StoreInstrIR(rval, lval);
     ir_module.pushValueToBasicBlock((ValueIR*)store_ir);
   } else if (ctx->RETURN()) {
@@ -135,6 +150,46 @@ std::any IRGenVisitor::visitLVal(SysYParser::LValContext* ctx) {
     exit(1);
   }
   if (value->isConst()) {
+    return (ValueIR*)value;
+  }
+  bool pre_lval = ir_module.getLval();
+  bool is_pointer = ((AllocInstrIR*)value)->var->type->tag == IRT_POINTER;
+  bool is_pr = false;
+  if (is_pointer) {
+    Type* array_type =
+        ((PointerType*)((AllocInstrIR*)value)->var->type)->elem_type.get();
+    if (array_type->tag == IRT_ARRAY) {
+      if (((ArrayType*)array_type)->getDimen() + 1 != ctx->exp().size()) {
+        is_pr = true;
+      }
+    }
+  }
+  if (((AllocInstrIR*)value)->var->type->tag == IRT_ARRAY) {
+    if (((ArrayType*)((AllocInstrIR*)value)->var->type)->getDimen() !=
+        ctx->exp().size()) {
+      is_pr = true;
+    }
+  }
+  ir_module.setLval(false);
+  for (auto* exp : ctx->exp()) {
+    ValueIR* offset = std::any_cast<ValueIR*>(visitExp(exp));
+    if (is_pointer) {
+      value = new LoadInstrIR(value, getTmp());
+      ir_module.pushValueToBasicBlock(value);
+      value = new GetPtrInstrIR(value, offset, getTmp());
+      is_pointer = false;
+    } else {
+      value = new GetElemPtrIR(value, offset, getTmp());
+    }
+    ir_module.pushValueToBasicBlock(value);
+  }
+  ir_module.setLval(pre_lval);
+  if (ir_module.getLval()) {
+    return (ValueIR*)value;
+  }
+  if (is_pr) {
+    value = new GetElemPtrIR(value, new IntegerValueIR(0), getTmp());
+    ir_module.pushValueToBasicBlock(value);
     return (ValueIR*)value;
   }
   LoadInstrIR* load_ir = new LoadInstrIR(value, getTmp());
@@ -389,40 +444,88 @@ std::any IRGenVisitor::visitLAndExp(SysYParser::LAndExpContext* ctx) {
       visitEqExp(ctx->eqExp());
       return nullptr;
     }
+    Label* true_label = new Label();
+    Label* false_label = new Label();
+
     ValueIR* lvalue = std::any_cast<ValueIR*>(visitLAndExp(ctx->lAndExp()));
-    ValueIR* rvalue = std::any_cast<ValueIR*>(visitEqExp(ctx->eqExp()));
-    if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
-      IntegerValueIR* int_ir = new IntegerValueIR();
-      int_ir->number = ((IntegerValueIR*)lvalue)->number &&
-                       ((IntegerValueIR*)rvalue)->number;
-
-      ir_module.pushValueToBasicBlock((ValueIR*)int_ir);
-      return (ValueIR*)int_ir;
+    if (lvalue->tag == IRV_INTEGER) {
+      if (!((IntegerValueIR*)lvalue)->number) {
+        return (ValueIR*)new IntegerValueIR(0);
+      } else {
+        ValueIR* rval = std::any_cast<ValueIR*>(visitEqExp(ctx->eqExp()));
+        if (rval->tag == IRV_INTEGER) {
+          return (ValueIR*)new IntegerValueIR(((IntegerValueIR*)rval)->number !=
+                                              0);
+        }
+        BinaryOpInstrIR* ne_ir = new BinaryOpInstrIR();
+        auto zero = new IntegerValueIR(0);
+        ir_module.pushValueToBasicBlock((ValueIR*)zero);
+        ne_ir->left = zero;
+        ne_ir->right = rval;
+        ne_ir->name = getTmp();
+        ne_ir->op_type = OP_NEQ;
+        ir_module.pushValueToBasicBlock((ValueIR*)ne_ir);
+        return (ValueIR*)ne_ir;
+      }
     }
-    auto zero = new IntegerValueIR();
-    zero->number = 0;
+    std::string tmp_name = "tmp";
+    auto ret_var = new VariableIR(new Int32Type(), tmp_name);
+    auto alloc_var = new AllocInstrIR(ret_var);
+    StoreInstrIR* store_ir = new StoreInstrIR(lvalue, alloc_var);
+    ir_module.pushValueToBasicBlock((ValueIR*)alloc_var);
+    ir_module.pushValueToBasicBlock((ValueIR*)store_ir);
+    BrInstrIR* br_ir = new BrInstrIR(lvalue, true_label, false_label);
+    ir_module.endBasicBlock((ValueIR*)br_ir);
+    ir_module.pushBasicBlock(new BasicBlockIR(true_label));
+    ValueIR* rvalue = std::any_cast<ValueIR*>(visitEqExp(ctx->eqExp()));
+    store_ir = new StoreInstrIR(rvalue, alloc_var);
+    ir_module.pushValueToBasicBlock((ValueIR*)store_ir);
+    ir_module.endBasicBlock(new JumpInstrIR(false_label));
+    ir_module.pushBasicBlock(new BasicBlockIR(false_label));
+    LoadInstrIR* load_ir = new LoadInstrIR(alloc_var, getTmp());
+    ir_module.pushValueToBasicBlock((ValueIR*)load_ir);
+    BinaryOpInstrIR* ne_ir = new BinaryOpInstrIR();
+    auto zero = new IntegerValueIR(0);
     ir_module.pushValueToBasicBlock((ValueIR*)zero);
-    BinaryOpInstrIR* ne_ir1 = new BinaryOpInstrIR();
-    ne_ir1->left = zero;
-    ne_ir1->right = lvalue;
-    ne_ir1->name = getTmp();
-    ne_ir1->op_type = OP_NEQ;
-    ir_module.pushValueToBasicBlock((ValueIR*)ne_ir1);
+    ne_ir->left = zero;
+    ne_ir->right = load_ir;
+    ne_ir->name = getTmp();
+    ne_ir->op_type = OP_NEQ;
+    ir_module.pushValueToBasicBlock((ValueIR*)ne_ir);
+    return (ValueIR*)ne_ir;
+    // ValueIR* lvalue = std::any_cast<ValueIR*>(visitLAndExp(ctx->lAndExp()));
+    // ValueIR* rvalue = std::any_cast<ValueIR*>(visitEqExp(ctx->eqExp()));
+    // if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
+    //   IntegerValueIR* int_ir = new IntegerValueIR();
+    //   int_ir->number = ((IntegerValueIR*)lvalue)->number &&
+    //                    ((IntegerValueIR*)rvalue)->number;
 
-    BinaryOpInstrIR* ne_ir2 = new BinaryOpInstrIR();
-    ne_ir2->left = zero;
-    ne_ir2->right = rvalue;
-    ne_ir2->name = getTmp();
-    ne_ir2->op_type = OP_NEQ;
-    ir_module.pushValueToBasicBlock((ValueIR*)ne_ir2);
+    //   ir_module.pushValueToBasicBlock((ValueIR*)int_ir);
+    //   return (ValueIR*)int_ir;
+    // }
 
-    BinaryOpInstrIR* land_ir = new BinaryOpInstrIR();
-    land_ir->op_type = OP_AND;
-    land_ir->left = ne_ir1;
-    land_ir->right = ne_ir2;
-    land_ir->name = getTmp();
-    ir_module.pushValueToBasicBlock((ValueIR*)land_ir);
-    return (ValueIR*)land_ir;
+    // ir_module.pushValueToBasicBlock((ValueIR*)zero);
+    // BinaryOpInstrIR* ne_ir1 = new BinaryOpInstrIR();
+    // ne_ir1->left = zero;
+    // ne_ir1->right = lvalue;
+    // ne_ir1->name = getTmp();
+    // ne_ir1->op_type = OP_NEQ;
+    // ir_module.pushValueToBasicBlock((ValueIR*)ne_ir1);
+
+    // BinaryOpInstrIR* ne_ir2 = new BinaryOpInstrIR();
+    // ne_ir2->left = zero;
+    // ne_ir2->right = rvalue;
+    // ne_ir2->name = getTmp();
+    // ne_ir2->op_type = OP_NEQ;
+    // ir_module.pushValueToBasicBlock((ValueIR*)ne_ir2);
+
+    // BinaryOpInstrIR* land_ir = new BinaryOpInstrIR();
+    // land_ir->op_type = OP_AND;
+    // land_ir->left = ne_ir1;
+    // land_ir->right = ne_ir2;
+    // land_ir->name = getTmp();
+    // ir_module.pushValueToBasicBlock((ValueIR*)land_ir);
+    // return (ValueIR*)land_ir;
   } else {
     return visitEqExp(ctx->eqExp());
   }
@@ -439,33 +542,80 @@ std::any IRGenVisitor::visitLOrExp(SysYParser::LOrExpContext* ctx) {
       visitLAndExp(ctx->lAndExp());
       return nullptr;
     }
+    Label* true_label = new Label();
+    Label* false_label = new Label();
+
     ValueIR* lvalue = std::any_cast<ValueIR*>(visitLOrExp(ctx->lOrExp()));
-    ValueIR* rvalue = std::any_cast<ValueIR*>(visitLAndExp(ctx->lAndExp()));
-    if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
-      IntegerValueIR* int_ir = new IntegerValueIR();
-      int_ir->number = ((IntegerValueIR*)lvalue)->number ||
-                       ((IntegerValueIR*)rvalue)->number;
-
-      ir_module.pushValueToBasicBlock((ValueIR*)int_ir);
-      return (ValueIR*)int_ir;
+    if (lvalue->tag == IRV_INTEGER) {
+      if (((IntegerValueIR*)lvalue)->number) {
+        return (ValueIR*)new IntegerValueIR(1);
+      } else {
+        ValueIR* rval = std::any_cast<ValueIR*>(visitLAndExp(ctx->lAndExp()));
+        if (rval->tag == IRV_INTEGER) {
+          return (ValueIR*)new IntegerValueIR(((IntegerValueIR*)rval)->number !=
+                                              0);
+        }
+        BinaryOpInstrIR* ne_ir = new BinaryOpInstrIR();
+        auto zero = new IntegerValueIR(0);
+        ir_module.pushValueToBasicBlock((ValueIR*)zero);
+        ne_ir->left = zero;
+        ne_ir->right = rval;
+        ne_ir->name = getTmp();
+        ne_ir->op_type = OP_NEQ;
+        ir_module.pushValueToBasicBlock((ValueIR*)ne_ir);
+        return (ValueIR*)ne_ir;
+      }
     }
-    BinaryOpInstrIR* lor_ir = new BinaryOpInstrIR();
-    lor_ir->op_type = OP_OR;
-    lor_ir->left = lvalue;
-    lor_ir->right = rvalue;
-    lor_ir->name = getTmp();
-    ir_module.pushValueToBasicBlock((ValueIR*)lor_ir);
+    std::string tmp_name = "tmp";
+    auto ret_var = new VariableIR(new Int32Type(), tmp_name);
+    auto alloc_var = new AllocInstrIR(ret_var);
 
+    StoreInstrIR* store_ir = new StoreInstrIR(lvalue, alloc_var);
+    ir_module.pushValueToBasicBlock((ValueIR*)alloc_var);
+    ir_module.pushValueToBasicBlock((ValueIR*)store_ir);
+    BrInstrIR* br_ir = new BrInstrIR(lvalue, true_label, false_label);
+    ir_module.endBasicBlock((ValueIR*)br_ir);
+    ir_module.pushBasicBlock(new BasicBlockIR(false_label));
+    ValueIR* rvalue = std::any_cast<ValueIR*>(visitLAndExp(ctx->lAndExp()));
+    store_ir = new StoreInstrIR(rvalue, alloc_var);
+    ir_module.pushValueToBasicBlock((ValueIR*)store_ir);
+    ir_module.endBasicBlock(new JumpInstrIR(true_label));
+    ir_module.pushBasicBlock(new BasicBlockIR(true_label));
+    LoadInstrIR* load_ir = new LoadInstrIR(alloc_var, getTmp());
+    ir_module.pushValueToBasicBlock((ValueIR*)load_ir);
     BinaryOpInstrIR* ne_ir = new BinaryOpInstrIR();
-    auto zero = new IntegerValueIR();
-    zero->number = 0;
+    auto zero = new IntegerValueIR(0);
     ir_module.pushValueToBasicBlock((ValueIR*)zero);
     ne_ir->left = zero;
-    ne_ir->right = lor_ir;
+    ne_ir->right = load_ir;
     ne_ir->name = getTmp();
     ne_ir->op_type = OP_NEQ;
     ir_module.pushValueToBasicBlock((ValueIR*)ne_ir);
     return (ValueIR*)ne_ir;
+    // if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
+    //   IntegerValueIR* int_ir = new IntegerValueIR();
+    //   int_ir->number = ((IntegerValueIR*)lvalue)->number ||
+    //                    ((IntegerValueIR*)rvalue)->number;
+
+    //   ir_module.pushValueToBasicBlock((ValueIR*)int_ir);
+    //   return (ValueIR*)int_ir;
+    // }
+    // BinaryOpInstrIR* lor_ir = new BinaryOpInstrIR();
+    // lor_ir->op_type = OP_OR;
+    // lor_ir->left = lvalue;
+    // lor_ir->right = rvalue;
+    // lor_ir->name = getTmp();
+    // ir_module.pushValueToBasicBlock((ValueIR*)lor_ir);
+
+    // BinaryOpInstrIR* ne_ir = new BinaryOpInstrIR();
+    // auto zero = new IntegerValueIR(0);
+    // ir_module.pushValueToBasicBlock((ValueIR*)zero);
+    // ne_ir->left = zero;
+    // ne_ir->right = lor_ir;
+    // ne_ir->name = getTmp();
+    // ne_ir->op_type = OP_NEQ;
+    // ir_module.pushValueToBasicBlock((ValueIR*)ne_ir);
+    // return (ValueIR*)ne_ir;
   } else {
     return visitLAndExp(ctx->lAndExp());
   }
@@ -486,13 +636,98 @@ std::any IRGenVisitor::visitConstDecl(SysYParser::ConstDeclContext* ctx) {
 }
 
 std::any IRGenVisitor::visitConstDef(SysYParser::ConstDefContext* ctx) {
-  std::string var_name = ctx->IDENT()->getText();
-  ValueIR* value =
-      std::any_cast<ValueIR*>(visitConstInitVal(ctx->constInitVal()));
-  if (!ir_module.putVar(var_name, value)) {
-    // Error hanlder
-    std::cerr << "Redefine var: " << var_name << std::endl;
-    exit(1);
+  if (!ctx->constExp().empty()) {
+    if (ir_module.inGlobal()) {
+      std::string var_name = ctx->IDENT()->getText();
+      Type* type = new Int32Type();
+      std::vector<int>* arr_shape = new std::vector<int>();
+      for (auto* exp : ctx->constExp()) {
+        int len = ((IntegerValueIR*)std::any_cast<ValueIR*>(visitConstExp(exp)))
+                      ->number;
+        arr_shape->push_back(len);
+      }
+      int size = arr_shape->size();
+      for (int i = size - 1; i >= 0; i--) {
+        type = new ArrayType(arr_shape->at(i), type);
+      }
+      VariableIR* variable = new VariableIR(type, var_name);
+      ValueIR* value;
+
+      // it is an array
+      AggregateValueIR* aggre_ir = new AggregateValueIR(arr_shape);
+      ir_module.pushAggregate(aggre_ir);
+      visitConstInitVal(ctx->constInitVal());
+      ir_module.popAggregate();
+      value = aggre_ir;
+      GlobalAllocIR* galloc = new GlobalAllocIR(variable, value);
+      ir_module.pushGlobalVar(galloc);
+      if (!ir_module.putVar(var_name, galloc)) {
+        // Error hanlder
+        std::cerr << "Redefine var: " << var_name << std::endl;
+        exit(1);
+      }
+      return nullptr;
+    }
+    std::string var_name = ctx->IDENT()->getText();
+    Type* type = new Int32Type();
+    std::vector<int>* arr_shape = new std::vector<int>();
+    for (auto* exp : ctx->constExp()) {
+      int len = ((IntegerValueIR*)std::any_cast<ValueIR*>(visitConstExp(exp)))
+                    ->number;
+      type = new ArrayType(len, type);
+      arr_shape->push_back(len);
+    }
+    VariableIR* variable = new VariableIR(type, var_name);
+    ir_module.pushValueToBasicBlock((ValueIR*)variable);
+    AllocInstrIR* alloc_ir = new AllocInstrIR(variable);
+    ir_module.pushValueToBasicBlock((ValueIR*)alloc_ir);
+
+    AggregateValueIR* aggre_ir = new AggregateValueIR(arr_shape);
+    ir_module.pushAggregate(aggre_ir);
+    visitConstInitVal(ctx->constInitVal());
+    ir_module.popAggregate();
+    int n = aggre_ir->arr_width->at(0);
+    int dep = arr_shape->size();
+    std::vector<int> locs(dep, 0);
+    for (int i = 0; i < n; i++) {
+      ValueIR* gep_ir = alloc_ir;
+      for (int d = 0; d < dep; d++) {
+        gep_ir =
+            new GetElemPtrIR(gep_ir, new IntegerValueIR(locs[d]), getTmp());
+        ir_module.pushValueToBasicBlock(gep_ir);
+      }
+      StoreInstrIR* store_ir =
+          new StoreInstrIR(aggre_ir->arr_elems->at(i), gep_ir);
+      ir_module.pushValueToBasicBlock(store_ir);
+      int l = dep - 1;
+      if (i == n - 1) {
+        break;
+      }
+      while (true) {
+        if (++locs[l] == arr_shape->at(l)) {
+          locs[l] = 0;
+        } else {
+          break;
+        }
+        l--;
+      }
+    }
+    if (!ir_module.putVar(var_name, alloc_ir)) {
+      // Error hanlder
+      std::cerr << "Redefine var: " << var_name << std::endl;
+      exit(1);
+    }
+  } else {
+    std::string var_name = ctx->IDENT()->getText();
+    Type* type = new Int32Type();
+    ValueIR* rvalue =
+        std::any_cast<ValueIR*>(visitConstInitVal(ctx->constInitVal()));
+
+    if (!ir_module.putVar(var_name, rvalue)) {
+      // Error hanlder
+      std::cerr << "Redefine var: " << var_name << std::endl;
+      exit(1);
+    }
   }
   return nullptr;
 }
@@ -501,7 +736,17 @@ std::any IRGenVisitor::visitConstInitVal(SysYParser::ConstInitValContext* ctx) {
   if (ctx->constExp()) {
     return visitConstExp(ctx->constExp());
   } else {
-    // TODO
+    AggregateValueIR* aggregate = ir_module.peekAggregate();
+    for (auto* elem : ctx->constInitVal()) {
+      if (elem->constExp()) {
+        aggregate->pushValue(
+            std::any_cast<ValueIR*>(visitConstExp(elem->constExp())));
+      } else {
+        aggregate->inBrace();
+        visitConstInitVal(elem);
+      }
+    }
+    aggregate->outBrace();
     return nullptr;
   }
 }
@@ -515,17 +760,110 @@ std::any IRGenVisitor::visitVarDecl(SysYParser::VarDeclContext* ctx) {
 }
 
 std::any IRGenVisitor::visitVarDef(SysYParser::VarDefContext* ctx) {
+  if (ir_module.inGlobal()) {
+    std::string var_name = ctx->IDENT()->getText();
+    Type* type = new Int32Type();
+    std::vector<int>* arr_shape = new std::vector<int>();
+    for (auto* exp : ctx->constExp()) {
+      int len = ((IntegerValueIR*)std::any_cast<ValueIR*>(visitConstExp(exp)))
+                    ->number;
+      arr_shape->push_back(len);
+    }
+    int size = arr_shape->size();
+    for (int i = size - 1; i >= 0; i--) {
+      type = new ArrayType(arr_shape->at(i), type);
+    }
+    VariableIR* variable = new VariableIR(type, var_name);
+    ValueIR* value;
+    if (ctx->initVal()) {
+      if (arr_shape->empty()) {
+        // single value
+        value = std::any_cast<ValueIR*>(visitInitVal(ctx->initVal()));
+      } else {
+        // it is an array
+        AggregateValueIR* aggre_ir = new AggregateValueIR(arr_shape);
+        ir_module.pushAggregate(aggre_ir);
+        visitInitVal(ctx->initVal());
+        ir_module.popAggregate();
+        value = aggre_ir;
+      }
+    } else {
+      if (arr_shape->empty()) {
+        // single value
+        value = new IntegerValueIR(0);
+      } else {
+        value = new AggregateValueIR(arr_shape);
+      }
+    }
+    GlobalAllocIR* galloc_ir = new GlobalAllocIR(variable, value);
+    ir_module.pushGlobalVar(galloc_ir);
+
+    if (!ir_module.putVar(var_name, galloc_ir)) {
+      // Error hanlder
+      std::cerr << "Redefine var: " << var_name << std::endl;
+      exit(1);
+    }
+    return nullptr;
+  }
+
   std::string var_name = ctx->IDENT()->getText();
-  VariableIR* variable = new VariableIR(Int32Type(), var_name);
+  Type* type = new Int32Type();
+  std::vector<int>* arr_shape = new std::vector<int>();
+  for (auto* exp : ctx->constExp()) {
+    int len =
+        ((IntegerValueIR*)std::any_cast<ValueIR*>(visitConstExp(exp)))->number;
+    arr_shape->push_back(len);
+  }
+  int size = arr_shape->size();
+  for (int i = size - 1; i >= 0; i--) {
+    type = new ArrayType(arr_shape->at(i), type);
+  }
+  VariableIR* variable = new VariableIR(type, var_name);
   ir_module.pushValueToBasicBlock((ValueIR*)variable);
   AllocInstrIR* alloc_ir = new AllocInstrIR(variable);
   ir_module.pushValueToBasicBlock((ValueIR*)alloc_ir);
   if (ctx->initVal()) {
-    ValueIR* value = std::any_cast<ValueIR*>(visitInitVal(ctx->initVal()));
-    StoreInstrIR* store_ir = new StoreInstrIR(value, (ValueIR*)alloc_ir);
-    ir_module.pushValueToBasicBlock((ValueIR*)store_ir);
+    if (arr_shape->empty()) {
+      // single value
+      ValueIR* value = std::any_cast<ValueIR*>(visitInitVal(ctx->initVal()));
+      StoreInstrIR* store_ir = new StoreInstrIR(value, (ValueIR*)alloc_ir);
+      ir_module.pushValueToBasicBlock((ValueIR*)store_ir);
+    } else {
+      // it is an array
+      AggregateValueIR* aggre_ir = new AggregateValueIR(arr_shape);
+      ir_module.pushAggregate(aggre_ir);
+      visitInitVal(ctx->initVal());
+      ir_module.popAggregate();
+      // TODO store
+      int n = aggre_ir->arr_width->at(0);
+      int dep = arr_shape->size();
+      std::vector<int> locs(dep, 0);
+      for (int i = 0; i < n; i++) {
+        ValueIR* gep_ir = alloc_ir;
+        for (int d = 0; d < dep; d++) {
+          gep_ir =
+              new GetElemPtrIR(gep_ir, new IntegerValueIR(locs[d]), getTmp());
+          ir_module.pushValueToBasicBlock(gep_ir);
+        }
+        StoreInstrIR* store_ir =
+            new StoreInstrIR(aggre_ir->arr_elems->at(i), gep_ir);
+        ir_module.pushValueToBasicBlock(store_ir);
+        int l = dep - 1;
+        if (i == n - 1) {
+          break;
+        }
+        while (true) {
+          if (++locs[l] == arr_shape->at(l)) {
+            locs[l] = 0;
+          } else {
+            break;
+          }
+          l--;
+        }
+      }
+      delete aggre_ir;
+    }
   }
-
   if (!ir_module.putVar(var_name, alloc_ir)) {
     // Error hanlder
     std::cerr << "Redefine var: " << var_name << std::endl;
@@ -538,8 +876,18 @@ std::any IRGenVisitor::visitInitVal(SysYParser::InitValContext* ctx) {
   if (ctx->exp()) {
     return visitExp(ctx->exp());
   } else {
-    // TODO
-    return visitChildren(ctx);
+    AggregateValueIR* aggregate = ir_module.peekAggregate();
+
+    for (auto* elem : ctx->initVal()) {
+      if (elem->exp()) {
+        aggregate->pushValue(std::any_cast<ValueIR*>(visitExp(elem->exp())));
+      } else {
+        aggregate->inBrace();
+        visitInitVal(elem);
+      }
+    }
+    aggregate->outBrace();
+    return aggregate;
   }
 }
 

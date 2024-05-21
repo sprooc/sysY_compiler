@@ -1,7 +1,9 @@
+void init(int arr[][10][10]) {
+}
 
-void f() {}
 
 int main() {
-  f();
-  return 1;
+  int arr[10][10][10], sum = 0;
+  init(arr);
+  return 0;
 }

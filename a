@@ -1,0 +1,26 @@
+run test in "-koopa" mode
+working directory: /tmp/tmp441o0ck8
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+running test "00_local_arr_1d" ... [0;32mPASSED[0m
+running test "01_local_arr_nd" ... [0;32mPASSED[0m
+running test "02_global_arr" ... [0;32mPASSED[0m
+running test "03_arr_init_1d" ... [0;32mPASSED[0m
+running test "04_arr_init_nd" ... [0;32mPASSED[0m
+running test "05_global_arr_init" ... [0;32mPASSED[0m
+running test "06_long_array" ... [0;32mPASSED[0m
+running test "07_const_array" ... [0;32mPASSED[0m
+running test "08_arr_access" ... [0;32mPASSED[0m
+running test "09_const_arr_read" ... [0;32mPASSED[0m
+running test "10_arr_in_loop" ... [0;32mPASSED[0m
+running test "11_arr_params" ... [0;32mPASSED[0m
+running test "12_more_arr_params" ... [0;32mPASSED[0m
+running test "13_complex_arr_params" ... [0;32mPASSED[0m
+running test "14_arr_lib_funcs" ... [0;32mPASSED[0m
+running test "15_sort1" ... [0;32mPASSED[0m
+running test "16_sort2" ... [0;32mPASSED[0m
+running test "17_sort3" ... [0;32mPASSED[0m
+running test "18_sort4" ... [0;32mPASSED[0m
+running test "19_sort5" ... [0;32mPASSED[0m
+running test "20_sort6" ... [0;32mPASSED[0m
+running test "21_sort7" ... [0;32mPASSED[0m
+[0;32mPASSED[0m (22/22)
