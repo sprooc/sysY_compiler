@@ -198,6 +198,8 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
     }
     return;
   }
+
+  emitCodeIL("call", call_instr->function->name);
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value) {
