@@ -1,7 +1,7 @@
   .text
   .global sum
 sum:
-  addi  sp, sp, -96
+  addi  sp, sp, -112
 L0:
   sw    a0, 0(sp)
   sw    a1, 4(sp)
@@ -11,7 +11,7 @@ L0:
   sw    a5, 20(sp)
   sw    a6, 24(sp)
   sw    a7, 28(sp)
-  lw    t0, 96(sp)
+  lw    t0, 112(sp)
   sw    t0, 32(sp)
   lw    t0, 0(sp)
   sw    t0, 36(sp)
@@ -57,8 +57,14 @@ L0:
   lw    t1, 88(sp)
   add   t0, t0, t1
   sw    t0, 92(sp)
-  lw    a0, 92(sp)
-  addi  sp, sp, 96
+  lw    t0, 32(sp)
+  sw    t0, 96(sp)
+  lw    t0, 92(sp)
+  lw    t1, 96(sp)
+  add   t0, t0, t1
+  sw    t0, 100(sp)
+  lw    a0, 100(sp)
+  addi  sp, sp, 112
   ret
 
   .text
