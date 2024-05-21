@@ -206,7 +206,7 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   }
 }
 
-int CodeGenVisitor::loadFromMen(ValueIR* value, int reg = 0) {
+int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
   if (reg == 0) {
     reg = reg_alloc.GetOne();
   }
