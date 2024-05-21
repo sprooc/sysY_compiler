@@ -51,4 +51,5 @@ class CodeGenVisitor {
   void visit(BrInstrIR* br_instr);
   void visit(CallInstrIR* br_instr);
   void visit(GlobalAllocIR* galloc_instr);
+  void visit(GetElemPtrIR* gep_isntr);
 };

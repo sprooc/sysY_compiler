@@ -16,7 +16,7 @@ L0:
   sw    t0, 4(sp)
   lw    t0, 4(sp)
   la    t1, a
-  sw    t0, 2(x0)
+  sw    t0, 0(t1)
   la    t0, a
   lw    t0, 0(t0)
   sw    t0, 8(sp)

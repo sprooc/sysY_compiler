@@ -72,6 +72,9 @@ void CodeGenVisitor::visit(ValueIR* value) {
     case ValueTag::IRV_CALL:
       visit((CallInstrIR*)value);
       break;
+    case ValueTag::IRV_GEP:
+      visit((GetElemPtrIR*)value);
+      break;
     default:
       // assert(0);
       break;
@@ -232,6 +235,7 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   }
   reg_alloc.freeAll();
 }
+
 void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
   out_file << "  .globl " << galloc_instr->var->name << std::endl;
   int size = galloc_instr->var->type->getSize();
@@ -243,6 +247,18 @@ void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
     galloc_instr->init_val->PrintName();
     out_file << std::endl;
   }
+}
+
+void CodeGenVisitor::visit(GetElemPtrIR* gep_isntr) {
+  if (state == SCAN) {
+    men_alloc.alloc(gep_isntr->toString(), 4);
+    return;
+  }
+  int src_loc = men_alloc.getLoc(gep_isntr->ptr->toString());
+  int reg = reg_alloc.GetOne();
+  emitCodeI("addi", reg, sp, src_loc);
+  // ArrayType * array_type = gep_isntr->ptr->
+  // int type_size =
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
