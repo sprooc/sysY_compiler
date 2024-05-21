@@ -1,4 +1,4 @@
 int main() {
   int arr[50];
-  return 0;
+  return arr[2];
 }
