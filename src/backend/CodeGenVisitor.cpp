@@ -194,7 +194,7 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   if (state == SCAN) {
     men_alloc.noticeCall(call_instr->params.size());
     if (call_instr->function->ret_type->tag != IRT_VOID) {
-      men_alloc.alloc(call_instr->name, 4);
+      men_alloc.alloc(call_instr->toString(), 4);
     }
     return;
   }

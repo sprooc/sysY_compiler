@@ -522,7 +522,7 @@ class CallInstrIR : public InstrIR {
   CallInstrIR(FunctionIR* f, std::string n) : function(f), name(n) {
     this->tag = IRV_CALL;
   }
-
+  std::string toString() const override { return name; }
   void PrintName() const override { out_file << name; }
   void PrintIR() const override {
     if (function->ret_type->tag != IRT_VOID) {

@@ -11,6 +11,7 @@ void MenAllocator::exitFunxtion() {
   men_table.reset();
 }
 void MenAllocator::alloc(string name, int size) {
+  std::cout << "|" << name << "|" << std::endl;
   men_table->emplace(name, men_size);
   men_size += size;
 }
@@ -32,4 +33,3 @@ void MenAllocator::noticeCall(int ps) {
   has_call = true;
   max_ps = std::max(max_ps, ps);
 }
-
