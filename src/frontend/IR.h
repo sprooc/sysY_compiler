@@ -193,8 +193,9 @@ class AggregateValueIR : public ValueIR {
   void PrintIR() const override {
     if(!arr_elems) {
       out_file << "zeroinit";
+    } else {
+      dfsPrint(0, arr_shape->size() - 1, 0, arr_elems->size());
     }
-    dfsPrint(0, arr_shape->size() - 1, 0, arr_elems->size());
   }
   void PrintName() const override { PrintIR(); }
 
