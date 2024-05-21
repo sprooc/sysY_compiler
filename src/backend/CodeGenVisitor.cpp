@@ -25,7 +25,14 @@ void CodeGenVisitor::visit(FunctionIR* function) {
   }
   // alloc stack space
   int st_size = men_alloc.getStackSize();
-  emitCodeI("addi", sp, sp, -st_size);
+  if (st_size < 2048) {
+    emitCodeI("addi", sp, sp, -st_size);
+  } else {
+    int tr = reg_alloc.GetOne();
+    emitCodeU("li", tr, -st_size);
+    emitCodeR("add", sp, sp, tr);
+    reg_alloc.freeAll();
+  }
   // save return address: ra
   if (men_alloc.hasCall()) {
     emitCodeI("sw", ra, sp, st_size - 4);
@@ -88,8 +95,16 @@ void CodeGenVisitor::visit(ReturnValueIR* return_value) {
   if (men_alloc.hasCall()) {
     emitCodeI("lw", ra, sp, men_alloc.getStackSize() - 4);
   }
-  emitCodeI("addi", sp, sp, men_alloc.getStackSize());
+  int st_size = men_alloc.getStackSize();
+  if (st_size < 2048) {
+    emitCodeI("addi", sp, sp, st_size);
+  } else {
+    int tr = reg_alloc.GetOne();
+    emitCodeU("li", tr, st_size);
+    emitCodeR("add", sp, sp, tr);
+  }
   emitCodePI("ret");
+  reg_alloc.freeAll();
 }
 void CodeGenVisitor::visit(IntegerValueIR* integer_value) {
   int number = integer_value->number;
@@ -265,7 +280,13 @@ void CodeGenVisitor::visit(GetElemPtrIR* gep_isntr) {
   }
   int src_loc = men_alloc.getLoc(gep_isntr->ptr->toString());
   int reg = reg_alloc.GetOne();
-  emitCodeI("addi", reg, sp, src_loc);
+  if (src_loc < 2048) {
+    emitCodeI("addi", reg, sp, src_loc);
+  } else {
+    int tr = reg_alloc.GetOne();
+    emitCodeU("li", tr, src_loc);
+    emitCodeR("add", reg, sp, tr);
+  }
   ArrayType* array_type =
       (ArrayType*)men_alloc.getType(gep_isntr->ptr->toString());
   int type_size = array_type->elem_type->getSize();
