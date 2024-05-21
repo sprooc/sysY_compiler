@@ -1,5 +1,5 @@
 #include "MenAllocator.h"
-
+#include <iostream>
 void MenAllocator::enterFunction() {
   men_size = 0;
   men_table = std::make_unique<unordered_map<string, int>>();
