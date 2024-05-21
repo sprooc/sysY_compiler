@@ -21,7 +21,7 @@ entry:
   add   t0, t0, t2
   sw    t0, 8(sp)
   lw    t0, 8(sp)
-  lw    t1, 12(sp)
+  lw    t1, 0(t0)
   sw    t0, 0(t1)
   lw    a0, 12(sp)
   addi  sp, sp, 16
