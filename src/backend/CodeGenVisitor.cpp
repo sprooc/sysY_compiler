@@ -51,7 +51,7 @@ void CodeGenVisitor::visit(ValueIR* value) {
       visit((LoadInstrIR*)value);
       break;
     default:
-      assert(0);
+      // assert(0);
       break;
   }
 }

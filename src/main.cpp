@@ -39,9 +39,9 @@ int main(int argc, const char *argv[]) {
   SysYParser parser(&tokens);
   IRGenVisitor visitor;
   visitor.visitProgram(parser.program());
-  visitor.PrintResult();
-  // CodeGenVisitor code_gen;
-  // code_gen.visit(visitor.getProgram());
+  // visitor.PrintResult();
+  CodeGenVisitor code_gen;
+  code_gen.visit(visitor.getProgram());
 
   return 0;
 
