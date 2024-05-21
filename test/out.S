@@ -1,8 +1,8 @@
   .text
-  .global _start
-_start:
+  .global main
+main:
   addi  sp, sp, 0
-L0:
+entry:
   addi  sp, sp, 0
   ret
 
