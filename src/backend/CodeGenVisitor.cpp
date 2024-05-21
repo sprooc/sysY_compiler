@@ -288,7 +288,7 @@ void CodeGenVisitor::outCodeOffset(std::string instr, const std::string* rd,
   }
   out_file << *rd << ", " << imm << "(" << *rs1 << ")" << std::endl;
 }
-void CodeGenVisitor::outCode(std::string instr, std::string* r,
+void CodeGenVisitor::outCode(std::string instr, const std::string* r,
                              std::string label) {
   out_file << "  " << instr;
   for (int i = 6 - instr.size(); i; i--) {
