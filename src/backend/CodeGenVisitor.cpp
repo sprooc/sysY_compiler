@@ -199,7 +199,15 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
     }
     return;
   }
-
+  int l = 0;
+  for (auto* param : call_instr->params) {
+    if (l < 8) {
+      loadFromMen(param, a0 + l);
+    } else {
+      int reg = loadFromMen(param);
+      emitCodeI("sw", reg, sp, (l - 8) * 4);
+    }
+  }
   emitCodeIL("call", call_instr->function->name);
   if (call_instr->function->ret_type->tag != IRT_VOID) {
     emitCodeI("sw", a0, sp, men_alloc.getLoc(call_instr->toString()));
