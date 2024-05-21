@@ -264,7 +264,7 @@ void CodeGenVisitor::visit(GetElemPtrIR* gep_isntr) {
   int width_r = reg_alloc.GetOne();
   emitCodeU("li", width_r, type_size);
   emitCodeR("mul", width_r, width_r, index_r);
-  emitCodeI("add", reg, reg, width_r);
+  emitCodeR("add", reg, reg, width_r);
   int dmen = men_alloc.getLoc(gep_isntr->toString());
   emitCodeI("sw", reg, sp, dmen);
   men_alloc.setType(gep_isntr->toString(), array_type->elem_type.get());
