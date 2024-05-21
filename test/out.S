@@ -34,7 +34,8 @@ fun @main(): i32 {
 main:
   addi  sp, sp, -32
 entry:
-  sw    x0, 0(sp)
+  li    t0, 0
+  sw    t0, 0(sp)
   j     L1
 L1:
   lw    t0, 0(sp)
