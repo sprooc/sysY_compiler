@@ -19,10 +19,8 @@ fun @main(): i32 {
   .text
   .global main
 main:
-@x_0  li    t0, 10
+  li    t0, 10
   li    t1, 1
-  mv    a0, x0
-  ret
   sub   sp, sp, 16
   li    t2, 10
   li    t3, 1
