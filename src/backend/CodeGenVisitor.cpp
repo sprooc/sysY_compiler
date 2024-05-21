@@ -34,17 +34,8 @@ void CodeGenVisitor::visit(FunctionIR* function) {
     reg_alloc.freeAll();
   }
   // save return address: ra
-  if (men_alloc.hasCall()) {
-    st_size -= 4;
-    if (st_size < 2048) {
-      emitCodeI("addi", ra, sp, st_size);
-    } else {
-      int tr = reg_alloc.GetOne();
-      emitCodeU("li", tr, st_size);
-      emitCodeR("add", ra, sp, tr);
-      reg_alloc.freeAll();
-    }
-  }
+  emitSave(ra, sp, st_size - 4);
+
   state = GEN;
   for (auto& bb : function->basic_blocks) {
     visit((BasicBlockIR*)bb.get());

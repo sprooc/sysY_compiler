@@ -1,27 +1,22 @@
   .data
-  .globl arr
-arr:
-  .zero 262144
   .text
+  .globl f
+f:
+  addi  sp, sp, 0
+L0:
+  li    a0, 0
+  addi  sp, sp, 0
+  ret
+
   .globl main
 main:
   addi  sp, sp, -16
+  addi  ra, sp, 12
 entry:
-  addi  t0, sp, 0
-  li    t2, 4
-  mul   t2, t2, x0
-  add   t0, t0, t2
-  sw    t0, 4(sp)
-  li    t0, 1
-  sw    t0, 4(sp)
-  addi  t0, sp, 0
-  li    t2, 4
-  mul   t2, t2, x0
-  add   t0, t0, t2
-  sw    t0, 8(sp)
-  lw    t0, 8(sp)
-  sw    t0, 12(sp)
-  lw    a0, 12(sp)
+  call  f
+  sw    a0, 0(sp)
+  lw    a0, 0(sp)
+  lw    ra, 12(sp)
   addi  sp, sp, 16
   ret
 
