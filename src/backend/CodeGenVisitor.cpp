@@ -26,7 +26,10 @@ void CodeGenVisitor::visit(FunctionIR* function) {
   men_alloc.exitFunxtion();
 }
 void CodeGenVisitor::visit(BasicBlockIR* basic_block) {
-  outLabel(basic_block->label->name);
+  if (state == GEN) {
+    outLabel(basic_block->label->name);
+    out_file << std::endl;
+  }
   for (auto& value : basic_block->values) {
     visit((ValueIR*)value.get());
   }
