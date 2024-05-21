@@ -319,8 +319,8 @@ void CodeGenVisitor::emitSave(int rs, int rd, int off) {
   } else {
     int tr = reg_alloc.GetOne();
     emitCodeU("li", tr, off);
-    emitCodeR("add", rd, rd, tr);
-    emitCodeI("sw", rs, rd, 0);
+    emitCodeR("add", tr, rd, tr);
+    emitCodeI("sw", rs, tr, 0);
     reg_alloc.free(tr);
   }
 }
@@ -330,8 +330,8 @@ void CodeGenVisitor::emitLoad(int rd, int rs, int off) {
   } else {
     int tr = reg_alloc.GetOne();
     emitCodeU("li", tr, off);
-    emitCodeR("add", rs, rs, tr);
-    emitCodeI("lw", rd, rs, 0);
+    emitCodeR("add", tr, rs, tr);
+    emitCodeI("lw", rd, tr, 0);
     reg_alloc.free(tr);
   }
 }
