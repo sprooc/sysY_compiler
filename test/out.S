@@ -1,19 +1,17 @@
   .data
-  .globl var
-var:
-  .word 0
+  .globl a
+a:
+  .word 10
   .text
-  .globl main
-main:
+  .globl inc
+inc:
   addi  sp, sp, -16
-entry:
-  la    t0, var
+L0:
+  la    t0, a
+  lw    t0, 0(t0)
   sw    t0, 0(sp)
   lw    t0, 0(sp)
   li    t1, 1
   add   t0, t0, t1
   sw    t0, 4(sp)
-  lw    a0, 4(sp)
-  addi  sp, sp, 16
-  ret
-
+  lw    t0, 4(sp)

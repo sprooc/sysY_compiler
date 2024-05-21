@@ -1,28 +1,17 @@
-decl @getint(): i32
-decl @getch(): i32
-decl @getarray(*i32): i32
-decl @putint(i32)
-decl @putch(i32)
-decl @putarray(i32, *i32)
-decl @starttime()
-decl @stoptime()
-fun @f(): i32 {
-%L0:
-  ret 0
-}
-fun @main(): i32 {
-%entry:
-  %0 = call @f()
-  ret %0
-}
+  .data
+  .globl a
+a:
+  .word 10
   .text
-  .global f
-f:
-  addi  sp, sp, 0
+  .globl inc
+inc:
+  addi  sp, sp, -16
 L0:
-  mv    a0, x0
-  addi  sp, sp, 0
-  ret
-  .text
-  .global main
-main:
+  la    t0, a
+  lw    t0, 0(t0)
+  sw    t0, 0(sp)
+  lw    t0, 0(sp)
+  li    t1, 1
+  add   t0, t0, t1
+  sw    t0, 4(sp)
+  lw    t0, 4(sp)
