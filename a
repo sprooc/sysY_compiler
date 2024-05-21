@@ -1,5 +1,5 @@
 run test in "-riscv" mode
-working directory: /tmp/tmp8_y2z27o
+working directory: /tmp/tmp1ik7g1hy
 make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
 running test "00_local_arr_1d" ... [0;32mPASSED[0m
 running test "01_local_arr_nd" ... [0;32mPASSED[0m
@@ -9,7 +9,7 @@ running test "04_arr_init_nd" ... [0;32mPASSED[0m
 running test "05_global_arr_init" ... [0;32mPASSED[0m
 running test "06_long_array" ... [0;31mWRONG ANSWER[0m
 your answer:
-0
+-11
 running test "07_const_array" ... [0;32mPASSED[0m
 running test "08_arr_access" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
@@ -23,64 +23,54 @@ stderr:
 
 running test "10_arr_in_loop" ... [0;31mWRONG ANSWER[0m
 your answer:
-52
+-11
 running test "11_arr_params" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
 
 stderr:
-Cannot find type of %4
 
 running test "12_more_arr_params" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
 
 stderr:
-Cannot find type of %14
 
 running test "13_complex_arr_params" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
 
 stderr:
-Cannot find type of %5
 
 running test "14_arr_lib_funcs" ... [0;31mWRONG ANSWER[0m
 your answer:
-5: 1 2 3 4 6
 -11
 running test "15_sort1" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
 
 stderr:
-Cannot find type of %11
 
 running test "16_sort2" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
 
 stderr:
-Cannot find type of %4
 
 running test "17_sort3" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
 
 stderr:
-Cannot find type of %6
 
 running test "18_sort4" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
 
 stderr:
-Cannot find type of %11
 
 running test "19_sort5" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
 
 stderr:
-Cannot find type of %1
 
 running test "20_sort6" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
 
 stderr:
-Cannot find type of %10
 
 running test "21_sort7" ... [0;35mCASE COMPILE ERROR[0m
 stdout:
