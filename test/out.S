@@ -77,6 +77,7 @@ entry:
   sw    a0, 4(sp)
   lw    t0, 4(sp)
   sw    t0, 0(sp)
+  sw    x0, 8(sp)
   lw    t0, 0(sp)
   sw    t0, 12(sp)
   lw    t0, 8(sp)
