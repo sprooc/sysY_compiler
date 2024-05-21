@@ -61,6 +61,6 @@ git:
 
 asm: run
 	riscv64-unknown-elf-as -o test/out.o test/out
-	riscv64-unknown-elf-ld -o test/out test/out.o
-	qemu-riscv64-static test/out
+	riscv64-unknown-elf-ld -o test/a.out test/out.o
+	qemu-riscv64-static test/a.out
 
