@@ -215,7 +215,14 @@ void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
   } else {
     int dmen = men_alloc.getLoc(store_instr->dst->toString());
     // emitCodeI("sw", src, sp, dmen);
-    emitSave(src, sp, dmen);
+    Type* t = men_alloc.getType(store_instr->dst->toString());
+    if (t) {
+      int tr = reg_alloc.GetOne();
+      emitLoad(tr, sp, dmen);
+      emitSave(src, tr, 0);
+    } else {
+      emitSave(src, sp, dmen);
+    }
     reg_alloc.freeAll();
   }
 }
@@ -225,7 +232,7 @@ void CodeGenVisitor::visit(JumpInstrIR* jump_instr) {
   emitCodeIL("j", jump_instr->label->name);
   reg_alloc.freeAll();
 }
-  
+
 void CodeGenVisitor::visit(BrInstrIR* br_instr) {
   if (state == SCAN) return;
   int reg = loadFromMen(br_instr->cond);
