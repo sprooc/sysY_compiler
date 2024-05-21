@@ -240,8 +240,11 @@ void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
   out_file << "  .globl " << galloc_instr->var->name << std::endl;
   int size = galloc_instr->var->type->getSize();
   outLabel(galloc_instr->var->name);
-  if (!galloc_instr->init_val) {
-    out_file << "  .zero " << size << std::endl;
+  if (galloc_instr->var->type->tag == IRT_ARRAY) {
+    AggregateValueIR* aggre = (AggregateValueIR*)galloc_instr->init_val;
+    if (!aggre->arr_elems) {
+      out_file << "  .zero " << galloc_instr->var->type->getSize();
+    }
   } else {
     out_file << "  .word ";
     galloc_instr->init_val->PrintName();
