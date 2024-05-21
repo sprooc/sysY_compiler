@@ -203,7 +203,7 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
 
   emitCodeIL("call", call_instr->function->name);
   if (call_instr->function->ret_type->tag != IRT_VOID) {
-    emitCodeI("sw", a0, men_alloc.getLoc(call_instr->toString()));
+    emitCodeI("sw", a0, sp, men_alloc.getLoc(call_instr->toString()));
   }
 }
 
