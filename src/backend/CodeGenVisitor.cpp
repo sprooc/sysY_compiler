@@ -198,18 +198,32 @@ void CodeGenVisitor::visit(CallInstrIR* br_instr) {
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value) {
-  int reg = reg_alloc.GetOne();
+  int reg;
+  int loc;
   switch (value->tag) {
     case IRV_INTEGER:
       if (((IntegerValueIR*)value)->number == 0) {
-        reg_alloc.free(reg);
         return x0;
       }
+      reg = reg_alloc.GetOne();
       emitCodeU("li", reg, ((IntegerValueIR*)value)->number);
+      return reg;
+    case IRV_PARAM:
+      loc = ((ParamIR*)value)->loc;
+      if (reg < 8) {
+        return a0 + reg;
+      }
+      loc -= 8;
+      int st_size = men_alloc.getStackSize();
+      reg = reg_alloc.GetOne();
+      emitCodeI("lw", reg, sp, st_size + loc * 4);
+      return reg;
       break;
     default:
-      int loc = men_alloc.getLoc(value->toString());
+      loc = men_alloc.getLoc(value->toString());
+      reg = reg_alloc.GetOne();
       emitCodeI("lw", reg, sp, loc);
+      return reg;
       break;
   }
   return reg;

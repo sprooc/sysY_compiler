@@ -35,9 +35,10 @@ std::any IRGenVisitor::visitFuncDef(SysYParser::FuncDefContext* ctx) {
   // Funtion params scope
   ir_module.pushScope();
   if (ctx->funcFParams()) {
+    int loc = 0;
     for (auto* param : ctx->funcFParams()->funcFParam()) {
       std::string var_name = param->IDENT()->getText();
-      ParamIR* param_ir = new ParamIR(var_name);
+      ParamIR* param_ir = new ParamIR(var_name, loc++);
       Type* type = new Int32Type();
       std::vector<int>* arr_shape = new std::vector<int>();
       for (auto* exp : param->exp()) {
@@ -493,39 +494,6 @@ std::any IRGenVisitor::visitLAndExp(SysYParser::LAndExpContext* ctx) {
     ne_ir->op_type = OP_NEQ;
     ir_module.pushValueToBasicBlock((ValueIR*)ne_ir);
     return (ValueIR*)ne_ir;
-    // ValueIR* lvalue = std::any_cast<ValueIR*>(visitLAndExp(ctx->lAndExp()));
-    // ValueIR* rvalue = std::any_cast<ValueIR*>(visitEqExp(ctx->eqExp()));
-    // if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
-    //   IntegerValueIR* int_ir = new IntegerValueIR();
-    //   int_ir->number = ((IntegerValueIR*)lvalue)->number &&
-    //                    ((IntegerValueIR*)rvalue)->number;
-
-    //   ir_module.pushValueToBasicBlock((ValueIR*)int_ir);
-    //   return (ValueIR*)int_ir;
-    // }
-
-    // ir_module.pushValueToBasicBlock((ValueIR*)zero);
-    // BinaryOpInstrIR* ne_ir1 = new BinaryOpInstrIR();
-    // ne_ir1->left = zero;
-    // ne_ir1->right = lvalue;
-    // ne_ir1->name = getTmp();
-    // ne_ir1->op_type = OP_NEQ;
-    // ir_module.pushValueToBasicBlock((ValueIR*)ne_ir1);
-
-    // BinaryOpInstrIR* ne_ir2 = new BinaryOpInstrIR();
-    // ne_ir2->left = zero;
-    // ne_ir2->right = rvalue;
-    // ne_ir2->name = getTmp();
-    // ne_ir2->op_type = OP_NEQ;
-    // ir_module.pushValueToBasicBlock((ValueIR*)ne_ir2);
-
-    // BinaryOpInstrIR* land_ir = new BinaryOpInstrIR();
-    // land_ir->op_type = OP_AND;
-    // land_ir->left = ne_ir1;
-    // land_ir->right = ne_ir2;
-    // land_ir->name = getTmp();
-    // ir_module.pushValueToBasicBlock((ValueIR*)land_ir);
-    // return (ValueIR*)land_ir;
   } else {
     return visitEqExp(ctx->eqExp());
   }
@@ -592,30 +560,6 @@ std::any IRGenVisitor::visitLOrExp(SysYParser::LOrExpContext* ctx) {
     ne_ir->op_type = OP_NEQ;
     ir_module.pushValueToBasicBlock((ValueIR*)ne_ir);
     return (ValueIR*)ne_ir;
-    // if (lvalue->tag == IRV_INTEGER && rvalue->tag == IRV_INTEGER) {
-    //   IntegerValueIR* int_ir = new IntegerValueIR();
-    //   int_ir->number = ((IntegerValueIR*)lvalue)->number ||
-    //                    ((IntegerValueIR*)rvalue)->number;
-
-    //   ir_module.pushValueToBasicBlock((ValueIR*)int_ir);
-    //   return (ValueIR*)int_ir;
-    // }
-    // BinaryOpInstrIR* lor_ir = new BinaryOpInstrIR();
-    // lor_ir->op_type = OP_OR;
-    // lor_ir->left = lvalue;
-    // lor_ir->right = rvalue;
-    // lor_ir->name = getTmp();
-    // ir_module.pushValueToBasicBlock((ValueIR*)lor_ir);
-
-    // BinaryOpInstrIR* ne_ir = new BinaryOpInstrIR();
-    // auto zero = new IntegerValueIR(0);
-    // ir_module.pushValueToBasicBlock((ValueIR*)zero);
-    // ne_ir->left = zero;
-    // ne_ir->right = lor_ir;
-    // ne_ir->name = getTmp();
-    // ne_ir->op_type = OP_NEQ;
-    // ir_module.pushValueToBasicBlock((ValueIR*)ne_ir);
-    // return (ValueIR*)ne_ir;
   } else {
     return visitLAndExp(ctx->lAndExp());
   }

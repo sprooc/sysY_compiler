@@ -88,11 +88,12 @@ class InstrIR : public ValueIR {
 class ParamIR : public ValueIR {
  public:
   std::string name;
+  int loc;
   std::unique_ptr<Type> type;
   ParamIR() : ValueIR(IRV_PARAM) {}
-  ParamIR(std::string& n) : ValueIR(IRV_PARAM), name(n) {}
-  ParamIR(Type* t, std::string& n)
-      : ValueIR(IRV_PARAM), name(n), type(std::unique_ptr<Type>(t)) {}
+  ParamIR(std::string& n, int l) : ValueIR(IRV_PARAM), name(n), loc(l) {}
+  ParamIR(Type* t, std::string& n, int l)
+      : ValueIR(IRV_PARAM), name(n), type(std::unique_ptr<Type>(t)),loc(l) {}
   void PrintName() const override { out_file << "@" << name; };
   void PrintIR() const override {
     out_file << "@" << name << ": " << type->toString();
