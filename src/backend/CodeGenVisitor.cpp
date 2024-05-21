@@ -16,7 +16,7 @@ void CodeGenVisitor::visit(ProgramIR* program) {
   }
 }
 void CodeGenVisitor::visit(FunctionIR* function) {
-  out_file << "  .global " << function->name << std::endl;
+  out_file << "  .globl " << function->name << std::endl;
   out_file << function->name << ":" << std::endl;
   men_alloc.enterFunction();
   state = SCAN;
@@ -44,7 +44,7 @@ void CodeGenVisitor::visit(BasicBlockIR* basic_block) {
   for (auto& value : basic_block->values) {
     visit((ValueIR*)value.get());
   }
-}
+}i
 void CodeGenVisitor::visit(ValueIR* value) {
   switch (value->tag) {
     case ValueTag::IRV_RETURN:
@@ -230,7 +230,7 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   reg_alloc.freeAll();
 }
 void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
-  out_file << "  .global " << galloc_instr->var->name << std::endl;
+  out_file << "  .globl " << galloc_instr->var->name << std::endl;
   int size = galloc_instr->var->type->getSize();
   outLabel(galloc_instr->var->name);
   if (!galloc_instr->init_val) {
