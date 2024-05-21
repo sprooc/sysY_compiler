@@ -35,9 +35,6 @@ void CodeGenVisitor::visit(ValueIR* value) {
     case ValueTag::IRV_RETURN:
       visit((ReturnValueIR*)value);
       break;
-    case ValueTag::IRV_INTEGER:
-      visit((IntegerValueIR*)value);
-      break;
     case ValueTag::IRV_BOP:
       visit((BinaryOpInstrIR*)value);
       break;
@@ -144,11 +141,13 @@ void CodeGenVisitor::visit(AllocInstrIR* alloc_instr) {
   if (state == SCAN) {
     men_alloc.alloc(alloc_instr->var->toString(),
                     alloc_instr->var->type->getSize());
+    return;
   }
 }
 void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
   if (state == SCAN) {
     men_alloc.alloc(load_instr->name, 4);
+    return;
   }
 }
 void CodeGenVisitor::visit(StoreInstrIR* store_instr) {}
