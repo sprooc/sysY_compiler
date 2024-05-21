@@ -407,6 +407,7 @@ class BrInstrIR : public InstrIR {
   ValueIR* cond;
   Label* true_label;
   Label* false_label;
+  BrInstrIR() { tag = IRV_BR; }
   BrInstrIR(ValueIR* c, Label* t, Label* f)
       : cond(c), true_label(t), false_label(f) {
     tag = IRV_BR;
