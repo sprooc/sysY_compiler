@@ -13,7 +13,7 @@ void MenAllocator::alloc(string name, int size) {
   men_size += size;
 }
 int MenAllocator::getStackSize() {
-  return (men_size + 15) & ~15
+  return (men_size + 15) & ~15;
 }
 int MenAllocator::getLoc(string name) {
   return men_table->find(name)->second;
