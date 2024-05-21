@@ -207,6 +207,7 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
       int reg = loadFromMen(param);
       emitCodeI("sw", reg, sp, (l - 8) * 4);
     }
+    l++;
   }
   emitCodeIL("call", call_instr->function->name);
   if (call_instr->function->ret_type->tag != IRT_VOID) {
