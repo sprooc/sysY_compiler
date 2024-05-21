@@ -29,16 +29,14 @@ fun @main(): i32 {
 half:
   addi  sp, sp, -16
 L0:
-  lw    t0, -16(sp)
-  sw    t0, 0(sp)
+  sw    a1, 0(sp)
   lw    t0, 0(sp)
   sw    t0, 4(sp)
   lw    t0, 4(sp)
   li    t1, 2
   div   t0, t0, t1
   sw    t0, 8(sp)
-  lw    t0, 8(sp)
-  mv    a0, t0
+  lw    a0, 8(sp)
   addi  sp, sp, 16
   ret
 
@@ -59,8 +57,7 @@ entry:
   call  f
   call  half
   sw    a0, 0(sp)
-  lw    t1, 0(sp)
-  mv    a0, t1
+  lw    a0, 0(sp)
   lw    ra, 12(sp)
   addi  sp, sp, 16
   ret
