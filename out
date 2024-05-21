@@ -1,5 +1,5 @@
   .text
-  .global init
-init:
-  li    t0, 10
-  li    t1, 10
+  .global main
+main:
+  li    a0, 0
+  ret
