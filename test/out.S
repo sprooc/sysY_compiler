@@ -77,8 +77,8 @@ L3:
   .text
   .global main
 main:
-  addi  sp, sp, -80
-  sw    ra, 76(sp)
+  addi  sp, sp, -32
+  sw    ra, 28(sp)
 entry:
   li    a0, 1
   li    a1, 2
@@ -99,59 +99,9 @@ entry:
   lw    t0, 24(sp)
   sw    t0, 8(sp)
   lw    t0, 8(sp)
-  sw    t0, 32(sp)
-  lw    t0, 32(sp)
-  sw    t0, 36(sp)
-  lw    t0, 32(sp)
-  bnez  t0, L10
-  j     L11
-L11:
-  li    a0, 1
-  li    a1, 2
-  call  add
-  sw    a0, 40(sp)
-  lw    t0, 40(sp)
-  li    t1, 10
-  sgt   t0, t0, t1
-  sw    t0, 44(sp)
-  lw    t0, 44(sp)
-  sw    t0, 36(sp)
-  j     L10
-L10:
-  lw    t0, 36(sp)
-  sw    t0, 48(sp)
-  lw    t1, 48(sp)
-  xor   t1, x0, t1
-  snez  t1, t1
-  sw    t1, 52(sp)
-  lw    a0, 52(sp)
-  li    a1, 5
-  call  div
-  sw    a0, 56(sp)
-  li    a0, 3
-  lw    a1, 56(sp)
-  call  mul
-  sw    a0, 60(sp)
-  lw    t1, 60(sp)
-  xor   t1, x0, t1
-  snez  t1, t1
-  sw    t1, 64(sp)
-  li    a0, 1
-  lw    a1, 64(sp)
-  call  add
-  sw    a0, 68(sp)
-  lw    t0, 68(sp)
   sw    t0, 28(sp)
-  lw    t0, 8(sp)
-  sw    t0, 72(sp)
-  lw    t0, 28(sp)
-  sw    t0, 76(sp)
-  lw    t0, 72(sp)
-  lw    t1, 76(sp)
-  add   t0, t0, t1
-  sw    t0, 80(sp)
-  lw    a0, 80(sp)
-  lw    ra, 76(sp)
-  addi  sp, sp, 80
+  lw    a0, 28(sp)
+  lw    ra, 28(sp)
+  addi  sp, sp, 32
   ret
 
