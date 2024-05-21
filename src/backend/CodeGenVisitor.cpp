@@ -54,9 +54,9 @@ void CodeGenVisitor::visit(ValueIR* value) {
 }
 void CodeGenVisitor::visit(ReturnValueIR* return_value) {
   if (state == SCAN) return;
-  loadFromMen(return_value->ret_value);
-  int loc = men_alloc.getLoc(return_value->ret_value->toString());
-  emitCodeI("lw", a0, sp, loc);
+  
+  int reg = loadFromMen(return_value->ret_value);
+  emitCodePIRR("mv", a0, reg);
   emitCodeI("addi", sp, sp, men_alloc.getStackSize());
 
   emitCodePI("ret");

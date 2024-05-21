@@ -2,3 +2,4 @@
   .global main
 main:
   addi  sp, sp, 0
+  li    t0, 1
