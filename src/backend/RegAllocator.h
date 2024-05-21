@@ -40,7 +40,6 @@ class RegAllocator {
   }
 
   const std::string* GetName(int r) {
-    assert(r < avail);
     return &reg_name[r];
   }
 
