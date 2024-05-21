@@ -25,7 +25,9 @@ int MenAllocator::getStackSize() {
   return (size + 15) & ~15;
 }
 
-int MenAllocator::getLoc(string name) { return men_table->find(name)->second; }
+int MenAllocator::getLoc(string name) {
+  return men_table->find(name)->second + max_ps * 4;
+}
 
 void MenAllocator::noticeCall(int ps) {
   has_call = true;
