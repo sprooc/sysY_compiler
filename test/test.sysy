@@ -5,5 +5,5 @@ int sum(int a0, int a1) {
 
 int _start() {
   int x = sum(1, 2);
-  return x;
+  return 0;
 }
