@@ -3,6 +3,7 @@
   .globl f
 f:
   addi  sp, sp, 0
+  sw    ra, -4(sp)
 L0:
   li    a0, 0
   addi  sp, sp, 0
@@ -11,7 +12,7 @@ L0:
   .globl main
 main:
   addi  sp, sp, -16
-  addi  ra, sp, 12
+  sw    ra, 12(sp)
 entry:
   call  f
   sw    a0, 0(sp)
