@@ -2,5 +2,5 @@ int arr[65536];
 
 int main() {
   int arr[4] = {1};
-  return arr[0];
+  return 1;
 }
