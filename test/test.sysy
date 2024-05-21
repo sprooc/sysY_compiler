@@ -9,7 +9,7 @@ int sum2(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8,
 }
 
 int main() {
-  int x = 0；
+
   int y = sum2(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
-  return x + y;
+  return y;
 }
