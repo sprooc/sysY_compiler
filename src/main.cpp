@@ -24,12 +24,6 @@ std::ofstream out_file;
 int main(int argc, const char *argv[]) {
   out_file.open(argv[4]);
 
-  // std::ifstream file(input);
-  // std::string line;
-  // int i = 0;
-  // while (std::getline(file, line)) {
-  //   if (i++ == 1) out_file << line << std::endl;  // 输出每一行到标准输出
-  // }
 
   std::ifstream sourceFile(argv[2]);
   ANTLRInputStream input(sourceFile);

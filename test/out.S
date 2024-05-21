@@ -1,33 +1,3 @@
-decl @getint(): i32
-decl @getch(): i32
-decl @getarray(*i32): i32
-decl @putint(i32)
-decl @putch(i32)
-decl @putarray(i32, *i32)
-decl @starttime()
-decl @stoptime()
-fun @main(): i32 {
-%entry:
-  @i_0 = alloc i32
-  store 0, @i_0
-  jump %L1
-%L1:
-  %0 = load @i_0
-  %1 = lt %0, 10
-  br %1, %L2, %L0
-%L2:
-  @a_1 = alloc i32
-  store 1, @a_1
-  %2 = load @a_1
-  %3 = add %2, 2
-  store %3, @a_1
-  %4 = load @i_0
-  %5 = add %4, 1
-  store %5, @i_0
-  jump %L1
-%L0:
-  ret 0
-}
   .data
   .text
   .globl main
