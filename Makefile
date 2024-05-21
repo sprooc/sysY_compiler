@@ -32,7 +32,7 @@ run: compile git
 	$(BUILD_DIR)/$(TARGET_EXEC) -i test/test.sysy -o test/out.S
 
 test:
-	$(BUILD_DIR)/$(TARGET_EXEC) -i test/test.sysy -o test/out
+	$(BUILD_DIR)/$(TARGET_EXEC) -i test/test.sysy -o test/out.S
 
 debug:
 	gdb $(BUILD_DIR)/$(TARGET_EXEC) -x test/init.gdb
