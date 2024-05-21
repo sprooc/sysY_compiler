@@ -112,7 +112,9 @@ class VariableIR : public ValueIR {
       : ValueIR(ValueTag::IRV_VARIABLE), type(t), name(n) {
     id = id_alloc++;
   }
-  std::string toString() const override { return name + "_" + std::to_string(id); }
+  std::string toString() const override {
+    return name + "_" + std::to_string(id);
+  }
   void PrintIR() const override {};
   void PrintName() const override { out_file << name << "_" << id; };
 };
@@ -406,7 +408,9 @@ class BrInstrIR : public InstrIR {
   Label* true_label;
   Label* false_label;
   BrInstrIR(ValueIR* c, Label* t, Label* f)
-      : cond(c), true_label(t), false_label(f) {}
+      : cond(c), true_label(t), false_label(f) {
+    tag = IRV_BR;
+  }
   void PrintIR() const override {
     out_file << "br ";
     cond->PrintName();
@@ -418,7 +422,7 @@ class BrInstrIR : public InstrIR {
 class JumpInstrIR : public InstrIR {
  public:
   Label* label;
-  JumpInstrIR(Label* l) : label(l) {}
+  JumpInstrIR(Label* l) : label(l) { tag = IRV_JUMP; }
   void PrintIR() const override { out_file << "jump " << label->toString(); }
 };
 
