@@ -41,7 +41,7 @@ int main(int argc, const char *argv[]) {
   visitor.visitProgram(parser.program());
   // visitor.PrintResult();
   CodeGenVisitor code_gen;
-  code_gen.Visit(visitor.getProgram());
+  code_gen.visit(visitor.getProgram());
 
   return 0;
 

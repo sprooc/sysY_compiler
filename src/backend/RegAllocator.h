@@ -3,15 +3,16 @@
 #include <map>
 #include <queue>
 #include <string>
-enum Reg { x0, t0, t1, t2, t3, t4, t5, t6, a0, a1, a2, a3, a4, a5, a6, a7 };
+enum Reg { x0, t0, t1, t2, t3, t4, t5, t6, a0, a1, a2, a3, a4, a5, a6, a7 , sp};
 class RegAllocator {
  private:
-  const std::string reg_name[16] = {"x0", "t0", "t1", "t2", "t3", "t4",
+  const std::string reg_name[17] = {"x0", "t0", "t1", "t2", "t3", "t4",
                                     "t5", "t6", "a0", "a1", "a2", "a3",
-                                    "a4", "a5", "a6", "a7"};
+                                    "a4", "a5", "a6", "a7", "sp"};
   std::map<std::string, int> alloc_map;
   int upper = 1;
   std::queue<int> free_list;
+  int avail = 16;
 
  public:
   int GetOne() {
@@ -39,7 +40,7 @@ class RegAllocator {
   }
 
   const std::string* GetName(int r) {
-    assert(r < 16);
+    assert(r < avail);
     return &reg_name[r];
   }
 

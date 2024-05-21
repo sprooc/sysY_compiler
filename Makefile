@@ -29,10 +29,10 @@ compile: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(BUILD_DIR)/$(TARGET_EXEC)
 
 run: compile git
-	$(BUILD_DIR)/$(TARGET_EXEC) -i test/test.sysy -o out
+	$(BUILD_DIR)/$(TARGET_EXEC) -i test/test.sysy -o test/out
 
 test:
-	$(BUILD_DIR)/$(TARGET_EXEC) -i test/test.sysy -o out
+	$(BUILD_DIR)/$(TARGET_EXEC) -i test/test.sysy -o test/out
 
 debug:
 	gdb $(BUILD_DIR)/$(TARGET_EXEC) -x test/init.gdb
@@ -50,9 +50,9 @@ clean:
 	rm -f $(OBJS)
 
 llvm: test
-	koopac out > out.ll
-	llvm-as out.ll -o out.bc
-	lli out.bc
+	koopac test/out > test/out.ll
+	llvm-as test/out.ll -o test/out.bc
+	lli test/out.bc
 	echo $?
 
 git:

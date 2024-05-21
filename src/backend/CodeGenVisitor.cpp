@@ -4,41 +4,58 @@
 
 // TODO : fix memory leak
 
-void CodeGenVisitor::Visit(ProgramIR* program) {
+void CodeGenVisitor::visit(ProgramIR* program) {
   for (auto& function : program->functions) {
     out_file << "  .text" << std::endl;
-    Visit((FunctionIR*)function.get());
+    visit((FunctionIR*)function.get());
   }
 }
-void CodeGenVisitor::Visit(FunctionIR* function) {
+void CodeGenVisitor::visit(FunctionIR* function) {
   out_file << "  .global " << function->name << std::endl;
   out_file << function->name << ":" << std::endl;
+  men_alloc.enterFunction();
+  state = SCAN;
   for (auto& bb : function->basic_blocks) {
-    Visit((BasicBlockIR*)bb.get());
+    visit((BasicBlockIR*)bb.get());
   }
+  emitCodeI("sub", sp, sp, men_alloc.getStackSize());
+  state = GEN;
+  for (auto& bb : function->basic_blocks) {
+    visit((BasicBlockIR*)bb.get());
+  }
+  men_alloc.exitFunxtion();
 }
-void CodeGenVisitor::Visit(BasicBlockIR* basic_block) {
+void CodeGenVisitor::visit(BasicBlockIR* basic_block) {
   for (auto& value : basic_block->values) {
-    Visit((ValueIR*)value.get());
+    visit((ValueIR*)value.get());
   }
 }
-void CodeGenVisitor::Visit(ValueIR* value) {
+void CodeGenVisitor::visit(ValueIR* value) {
   switch (value->tag) {
     case ValueTag::IRV_RETURN:
-      Visit((ReturnValueIR*)value);
+      visit((ReturnValueIR*)value);
       break;
     case ValueTag::IRV_INTEGER:
-      Visit((IntegerValueIR*)value);
+      visit((IntegerValueIR*)value);
       break;
     case ValueTag::IRV_BOP:
-      Visit((BinaryOpInstrIR*)value);
+      visit((BinaryOpInstrIR*)value);
+      break;
+    case ValueTag::IRV_ALLOC:
+      visit((AllocInstrIR*)value);
+      break;
+    case ValueTag::IRV_STORE:
+      visit((StoreInstrIR*)value);
+      break;
+    case ValueTag::IRV_LOAD:
+      visit((LoadInstrIR*)value);
       break;
     default:
       assert(0);
       break;
   }
 }
-void CodeGenVisitor::Visit(ReturnValueIR* return_value) {
+void CodeGenVisitor::visit(ReturnValueIR* return_value) {
   if (return_value->ret_value->tag == IRV_INTEGER) {
     emitCodeU("li", a0, ((IntegerValueIR*)return_value->ret_value)->number);
   } else {
@@ -48,7 +65,7 @@ void CodeGenVisitor::Visit(ReturnValueIR* return_value) {
   }
   emitCodePI("ret");
 }
-void CodeGenVisitor::Visit(IntegerValueIR* integer_value) {
+void CodeGenVisitor::visit(IntegerValueIR* integer_value) {
   int number = integer_value->number;
   if (number == 0) {
     integer_value->reg = 0;
@@ -58,12 +75,16 @@ void CodeGenVisitor::Visit(IntegerValueIR* integer_value) {
   emitCodeU("li", r, number);
   integer_value->reg = r;
 }
-void CodeGenVisitor::Visit(BinaryOpInstrIR* binary_op_instr) {
+void CodeGenVisitor::visit(BinaryOpInstrIR* binary_op_instr) {
+  if (state == SCAN) {
+    men_alloc.alloc(binary_op_instr->name, 4);
+    return;
+  }
   if (binary_op_instr->left->tag == IRV_INTEGER) {
-    Visit((IntegerValueIR*)binary_op_instr->left);
+    visit((IntegerValueIR*)binary_op_instr->left);
   }
   if (binary_op_instr->right->tag == IRV_INTEGER) {
-    Visit((IntegerValueIR*)binary_op_instr->right);
+    visit((IntegerValueIR*)binary_op_instr->right);
   }
   int rs1 = binary_op_instr->left->reg;
   int rs2 = binary_op_instr->right->reg;
@@ -117,6 +138,18 @@ void CodeGenVisitor::Visit(BinaryOpInstrIR* binary_op_instr) {
       break;
   }
 }
+
+void CodeGenVisitor::visit(AllocInstrIR* alloc_instr) {
+  if (state == SCAN) {
+    men_alloc.alloc(alloc_instr->var->name, alloc_instr->var->type->getSize());
+  }
+}
+void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
+  if (state == SCAN) {
+    men_alloc.alloc(load_instr->name, 4);
+  }
+}
+void CodeGenVisitor::visit(StoreInstrIR* store_instr) {}
 
 void CodeGenVisitor::emitCodeR(std::string instr, int rd, int rs1, int rs2) {
   OutCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1),

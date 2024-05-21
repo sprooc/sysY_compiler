@@ -1,12 +1,14 @@
 #include <cassert>
-
+#include "MenAllocator.h"
 #include "../frontend/IR.h"
 #include "../frontend/IRGenVisitor.h"
 #include "RegAllocator.h"
 extern std::ofstream out_file;
 class CodeGenVisitor {
  private:
+  enum { SCAN, GEN } state;
   RegAllocator reg_alloc;
+  MenAllocator men_alloc;
   void OutCode(std::string instr, const std::string* rd, const std::string* rs1,
                const std::string* rs2);
   void OutCode(std::string instr, const std::string* rd, const std::string* rs1,
@@ -26,11 +28,14 @@ class CodeGenVisitor {
   void emitCodePIRR(std::string instr, int rd, int rs);
 
  public:
-  void Visit(ProgramIR* program);
-  void Visit(FunctionIR* function);
-  void Visit(BasicBlockIR* basic_block);
-  void Visit(ValueIR* value);
-  void Visit(ReturnValueIR* return_value);
-  void Visit(IntegerValueIR* integer_value);
-  void Visit(BinaryOpInstrIR* binary_op_instr);
+  void visit(ProgramIR* program);
+  void visit(FunctionIR* function);
+  void visit(BasicBlockIR* basic_block);
+  void visit(ValueIR* value);
+  void visit(ReturnValueIR* return_value);
+  void visit(IntegerValueIR* integer_value);
+  void visit(BinaryOpInstrIR* binary_op_instr);
+  void visit(AllocInstrIR* alloc_instr);
+  void visit(LoadInstrIR* load_instr);
+  void visit(StoreInstrIR* store_instr); 
 };
