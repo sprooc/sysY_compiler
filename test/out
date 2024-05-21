@@ -24,7 +24,7 @@ main:
   sw    ra, 12(sp)
 entry:
   li    a0, 1
-  li    a0, 2
+  li    a1, 2
   call  add
   sw    a0, 0(sp)
   lw    a0, 0(sp)
