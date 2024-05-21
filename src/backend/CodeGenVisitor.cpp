@@ -246,9 +246,9 @@ void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
 }
 
 int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
-  bool has_reg = false;
+  bool has_reg = true;
   if (reg == 0) {
-    has_reg = true;
+    has_reg = false;
     reg = reg_alloc.GetOne();
   }
   int loc;
