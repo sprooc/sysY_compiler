@@ -1,5 +1,5 @@
 
 
 int main() {
-  return 8+23;
+  return 0;
 }
