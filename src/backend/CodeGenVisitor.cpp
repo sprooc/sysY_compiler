@@ -225,7 +225,7 @@ void CodeGenVisitor::visit(JumpInstrIR* jump_instr) {
   emitCodeIL("j", jump_instr->label->name);
   reg_alloc.freeAll();
 }
-
+  
 void CodeGenVisitor::visit(BrInstrIR* br_instr) {
   if (state == SCAN) return;
   int reg = loadFromMen(br_instr->cond);
