@@ -1,35 +1,8 @@
   .text
-  .global sum
-sum:
-  addi  sp, sp, -32
-L0:
-  sw    a0, 0(sp)
-  sw    a1, 4(sp)
-  lw    t0, 0(sp)
-  sw    t0, 8(sp)
-  lw    t0, 4(sp)
-  sw    t0, 12(sp)
-  lw    t0, 8(sp)
-  lw    t1, 12(sp)
-  add   t0, t0, t1
-  sw    t0, 16(sp)
-  lw    a0, 16(sp)
-  addi  sp, sp, 32
-  ret
-
-  .text
   .global _start
 _start:
-  addi  sp, sp, -16
-  sw    ra, 12(sp)
-L1:
-  li    a0, 1
-  li    a1, 2
-  call  sum
-  sw    a0, 4(sp)
-  lw    t0, 4(sp)
-  sw    t0, 0(sp)
-  lw    ra, 12(sp)
-  addi  sp, sp, 16
+  addi  sp, sp, 0
+L0:
+  addi  sp, sp, 0
   ret
 
