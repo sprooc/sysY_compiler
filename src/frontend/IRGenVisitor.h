@@ -10,15 +10,14 @@
 #include "SysYParserBaseVisitor.h"
 class IRGenVisitor : public SysYParserBaseVisitor {
  private:
-
   int tmp = 0;
   std::string getTmp() { return "%" + std::to_string(tmp++); }
   Module ir_module;
 
  public:
-  void PrintResult() {
-    ir_module.printProgram();
-  }
+  ProgramIR* getProgram() { return ir_module.getProgram(); }
+
+  void PrintResult() { ir_module.printProgram(); }
   virtual std::any visitProgram(SysYParser::ProgramContext* ctx) override;
 
   virtual std::any visitCompUnit(SysYParser::CompUnitContext* ctx) override;
@@ -57,7 +56,8 @@ class IRGenVisitor : public SysYParserBaseVisitor {
 
   virtual std::any visitConstDef(SysYParser::ConstDefContext* ctx) override;
 
-  virtual std::any visitConstInitVal(SysYParser::ConstInitValContext* ctx) override;
+  virtual std::any visitConstInitVal(
+      SysYParser::ConstInitValContext* ctx) override;
 
   virtual std::any visitConstExp(SysYParser::ConstExpContext* ctx) override;
 

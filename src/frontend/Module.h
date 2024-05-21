@@ -118,6 +118,8 @@ class Module {
         std::unique_ptr<BasicBlockIR>(basic_block));
   }
 
+  ProgramIR* getProgram() { return program_ir.get(); }
+
   void printProgram() { program_ir->PrintIR(); }
 
   void pushTrueLabel(Label* label) { true_stack->push(label); }
