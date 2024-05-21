@@ -19,3 +19,4 @@ fun @main(): i32 {
   .text
   .global main
 main:
+  li    t0, 10

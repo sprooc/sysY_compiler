@@ -151,6 +151,8 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
   reg_alloc.freeAll();
 }
 void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
+  if (state == SCAN) return;
+
   int src = loadFromMen(store_instr->src);
   int dmen = men_alloc.getLoc(store_instr->toString());
   emitCodeI("sw", src, sp, dmen);
