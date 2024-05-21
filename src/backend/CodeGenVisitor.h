@@ -34,7 +34,7 @@ class CodeGenVisitor {
   void emitCodeIRL(std::string instr, int r, std::string label);
   void emitCodeIL(std::string instr, std::string label);
   void emitCodePIRR(std::string instr, int rd, int rs);
-  int loadFromMen(ValueIR* value);
+  int loadFromMen(ValueIR* value, int reg = 0);
 
  public:
   void visit(ProgramIR* program);

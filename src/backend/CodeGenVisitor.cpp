@@ -75,8 +75,7 @@ void CodeGenVisitor::visit(ValueIR* value) {
 void CodeGenVisitor::visit(ReturnValueIR* return_value) {
   if (state == SCAN) return;
   if (return_value->ret_value) {
-    int reg = loadFromMen(return_value->ret_value);
-    emitCodePIRR("mv", a0, reg);
+    int reg = loadFromMen(return_value->ret_value, a0);
   }
   if (men_alloc.hasCall()) {
     emitCodeI("lw", ra, sp, men_alloc.getStackSize() - 4);
@@ -207,15 +206,16 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
   }
 }
 
-int CodeGenVisitor::loadFromMen(ValueIR* value) {
-  int reg;
+int CodeGenVisitor::loadFromMen(ValueIR* value, int reg = 0) {
+  if (reg == 0) {
+    reg = reg_alloc.GetOne();
+  }
   int loc;
   switch (value->tag) {
     case IRV_INTEGER:
       if (((IntegerValueIR*)value)->number == 0) {
         return x0;
       }
-      reg = reg_alloc.GetOne();
       emitCodeU("li", reg, ((IntegerValueIR*)value)->number);
       return reg;
     case IRV_PARAM:
@@ -224,12 +224,10 @@ int CodeGenVisitor::loadFromMen(ValueIR* value) {
         return a0 + reg;
       }
       loc -= 8;
-      reg = reg_alloc.GetOne();
       emitCodeI("lw", reg, sp, men_alloc.getStackSize() + loc * 4);
       return reg;
     default:
       loc = men_alloc.getLoc(value->toString());
-      reg = reg_alloc.GetOne();
       emitCodeI("lw", reg, sp, loc);
       return reg;
   }
