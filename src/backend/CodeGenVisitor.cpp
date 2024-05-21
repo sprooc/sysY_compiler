@@ -7,7 +7,7 @@
 
 void CodeGenVisitor::Visit(ProgramIR* program) {
   for (auto& function : program->functions) {
-    out_file << "  .text" << std::endl;
+    // out_file << "  .text" << std::endl;
     Visit((FunctionIR*)function.get());
   }
 }

@@ -1,8 +1,5 @@
   .text
   .global main
 main:
-  li    t0, 8
-  li    t1, 23
-  li    t2, 31
-  li    a0, 31
+  li    a0, 0
   ret
