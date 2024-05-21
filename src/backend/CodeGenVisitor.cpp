@@ -230,7 +230,7 @@ void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
     out_file << "  .zero " << size << std::endl;
   } else {
     out_file << "  .word ";
-    galloc_instr->var->PrintName();
+    galloc_instr->init_val->PrintName();
     out_file << std::endl;
   }
 }
