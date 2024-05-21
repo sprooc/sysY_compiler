@@ -1,5 +1,5 @@
 run test in "-riscv" mode
-working directory: /tmp/tmp1ik7g1hy
+working directory: /tmp/tmpuhi1ka9e
 make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
 running test "00_local_arr_1d" ... [0;32mPASSED[0m
 running test "01_local_arr_nd" ... [0;32mPASSED[0m
@@ -52,29 +52,4 @@ stdout:
 
 stderr:
 
-running test "17_sort3" ... [0;35mCASE COMPILE ERROR[0m
-stdout:
-
-stderr:
-
-running test "18_sort4" ... [0;35mCASE COMPILE ERROR[0m
-stdout:
-
-stderr:
-
-running test "19_sort5" ... [0;35mCASE COMPILE ERROR[0m
-stdout:
-
-stderr:
-
-running test "20_sort6" ... [0;35mCASE COMPILE ERROR[0m
-stdout:
-
-stderr:
-
-running test "21_sort7" ... [0;35mCASE COMPILE ERROR[0m
-stdout:
-
-stderr:
-
-[0;31mWRONG ANSWER[0m (7/22)
+running test "17_sort3" ... [0;33mINTERRUPTED[0m
