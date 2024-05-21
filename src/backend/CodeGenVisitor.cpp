@@ -203,7 +203,7 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
   Type* t = men_alloc.getType(load_instr->src->toString());
   if (t) {
     int tr = reg_alloc.GetOne();
-    emitLoad(tr, sp, dmen);
+    emitLoad(tr, src, 0);
     emitSave(src, tr, 0);
   } else {
     emitSave(src, sp, dmen);
