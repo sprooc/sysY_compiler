@@ -78,14 +78,8 @@ void CodeGenVisitor::visit(BinaryOpInstrIR* binary_op_instr) {
     men_alloc.alloc(binary_op_instr->toString(), 4);
     return;
   }
-  if (binary_op_instr->left->tag == IRV_INTEGER) {
-    visit((IntegerValueIR*)binary_op_instr->left);
-  }
-  if (binary_op_instr->right->tag == IRV_INTEGER) {
-    visit((IntegerValueIR*)binary_op_instr->right);
-  }
-  int rs1 = binary_op_instr->left->reg;
-  int rs2 = binary_op_instr->right->reg;
+  int rs1 = loadFromMen(binary_op_instr->left);
+  int rs2 = loadFromMen(binary_op_instr->right);
   int rd = rs1 != 0 ? rs1 : (rs2 != 0 ? rs2 : reg_alloc.GetOne());
   binary_op_instr->reg = rd;
   switch (binary_op_instr->op_type) {
@@ -135,12 +129,14 @@ void CodeGenVisitor::visit(BinaryOpInstrIR* binary_op_instr) {
     default:
       break;
   }
+  int dmen = men_alloc.getLoc(binary_op_instr->toString());
+  emitCodeI("sw", rd, sp, dmen);
+  reg_alloc.freeAll();
 }
 
 void CodeGenVisitor::visit(AllocInstrIR* alloc_instr) {
   if (state == SCAN) {
-    men_alloc.alloc(alloc_instr->toString(),
-                    alloc_instr->var->type->getSize());
+    men_alloc.alloc(alloc_instr->toString(), alloc_instr->var->type->getSize());
     return;
   }
 }
@@ -149,8 +145,35 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
     men_alloc.alloc(load_instr->toString(), 4);
     return;
   }
+  int src = loadFromMen(load_instr->src);
+  int dmen = men_alloc.getLoc(load_instr->toString());
+  emitCodeI("sw", src, sp, dmen);
+  reg_alloc.freeAll();
 }
-void CodeGenVisitor::visit(StoreInstrIR* store_instr) {}
+void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
+  int src = loadFromMen(store_instr->src);
+  int dmen = men_alloc.getLoc(store_instr->toString());
+  emitCodeI("sw", src, sp, dmen);
+  reg_alloc.freeAll();
+}
+
+int CodeGenVisitor::loadFromMen(ValueIR* value) {
+  int reg = reg_alloc.GetOne();
+  switch (value->tag) {
+    case IRV_INTEGER:
+      if (((IntegerValueIR*)value)->number == 0) {
+        reg_alloc.free(reg);
+        return x0;
+      }
+      emitCodeU("li", reg, ((IntegerValueIR*)value)->number);
+      break;
+    default:
+      int loc = men_alloc.getLoc(value->toString());
+      emitCodeI("lw", reg, sp, loc);
+      break;
+  }
+  return reg;
+}
 
 void CodeGenVisitor::emitCodeR(std::string instr, int rd, int rs1, int rs2) {
   OutCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1),
@@ -158,6 +181,9 @@ void CodeGenVisitor::emitCodeR(std::string instr, int rd, int rs1, int rs2) {
 }
 
 void CodeGenVisitor::emitCodeI(std::string instr, int rd, int rs1, int imm) {
+  if (instr == "sw" || instr == "lw") {
+    OutCodeOffset(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1), imm);
+  }
   OutCode(instr, reg_alloc.GetName(rd), reg_alloc.GetName(rs1), imm);
 }
 
@@ -223,3 +249,12 @@ void CodeGenVisitor::OutCode(std::string instr) {
 
 void CodeGenVisitor::OutCode(std::string instr, int imm, const std::string* rs1,
                              const std::string* rs2) {}
+
+void CodeGenVisitor::OutCodeOffset(std::string instr, const std::string* rd,
+                                   const std::string* rs1, int imm) {
+  out_file << "  " << instr;
+  for (int i = 6 - instr.size(); i; i--) {
+    out_file << " ";
+  }
+  out_file << *rd << ", " << imm << "(" << *rs1 << ")" << std::endl;
+}
