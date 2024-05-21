@@ -18,7 +18,7 @@ void CodeGenVisitor::visit(FunctionIR* function) {
   for (auto& bb : function->basic_blocks) {
     visit((BasicBlockIR*)bb.get());
   }
-  emitCodeI("sub", sp, sp, men_alloc.getStackSize());
+  emitCodeI("addi", sp, sp, -men_alloc.getStackSize());
   state = GEN;
   for (auto& bb : function->basic_blocks) {
     visit((BasicBlockIR*)bb.get());
