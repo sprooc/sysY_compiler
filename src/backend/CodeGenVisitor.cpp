@@ -30,6 +30,7 @@ void CodeGenVisitor::visit(FunctionIR* function) {
     visit((BasicBlockIR*)bb.get());
   }
   men_alloc.exitFunxtion();
+  out_file << std::endl;
 }
 void CodeGenVisitor::visit(BasicBlockIR* basic_block) {
   if (state == GEN) {

@@ -46,3 +46,16 @@ L0:
 f:
   addi  sp, sp, 0
 L1:
+  ret
+  .text
+  .global main
+main:
+  addi  sp, sp, -16
+  sw    ra, 12(sp)
+entry:
+  call  f
+  call  half
+  mv    a0, a0
+  lw    ra, 12(sp)
+  addi  sp, sp, 16
+  ret
