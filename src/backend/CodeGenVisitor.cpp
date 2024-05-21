@@ -184,7 +184,7 @@ void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
   if (store_instr->dst->tag == IRV_GALLOC) {
     int reg = reg_alloc.GetOne();
     emitCodeIRL("la", reg, ((GlobalAllocIR*)store_instr->dst)->var->name);
-    emitCodeI("sw", src, 0, reg);
+    emitCodeI("sw", src, reg, 0);
     reg_alloc.freeAll();
   } else {
     int dmen = men_alloc.getLoc(store_instr->dst->toString());
