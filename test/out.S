@@ -1,18 +1,34 @@
   .data
+  .globl a
+a:
+  .word {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+  .globl b
+b:
+  .word {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+  .globl c
+c:
+  .word 0
+  .globl d
+d:
+  .word {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+  .globl e
+e:
+  .word {{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}}
+  .globl f
+f:
+  .word {{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}}
+  .globl g
+g:
+  .word 0
+  .globl h
+h:
+  .word {{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}}
   .text
   .globl main
 main:
-  addi  sp, sp, -208
+  addi  sp, sp, 0
 entry:
-  addi  t0, sp, 0
-  li    t1, 2
-  li    t2, 4
-  mul   t2, t2, t1
-  add   t0, t0, 3
-  sw    t0, 200(sp)
-  lw    t0, 200(sp)
-  sw    t0, 204(sp)
-  lw    a0, 204(sp)
-  addi  sp, sp, 208
+  li    a0, 2
+  addi  sp, sp, 0
   ret
 

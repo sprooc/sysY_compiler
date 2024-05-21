@@ -736,7 +736,7 @@ std::any IRGenVisitor::visitVarDef(SysYParser::VarDefContext* ctx) {
         // single value
         value = new IntegerValueIR(0);
       } else {
-        value = new AggregateValueIR(arr_shape);
+        value = new AggregateValueIR(arr_shape, nullptr);
       }
     }
     GlobalAllocIR* galloc_ir = new GlobalAllocIR(variable, value);
