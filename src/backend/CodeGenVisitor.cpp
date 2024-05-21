@@ -209,6 +209,7 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
       int reg = loadFromMen(param);
       emitCodeI("sw", reg, sp, (l - 8) * 4);
     }
+    reg_alloc.freeAll();
     l++;
   }
   emitCodeIL("call", call_instr->function->name);
