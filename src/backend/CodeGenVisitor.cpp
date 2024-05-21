@@ -23,8 +23,9 @@ void CodeGenVisitor::visit(FunctionIR* function) {
   emitCodeI("addi", sp, sp, -st_size);
   // save return address: ra
   if (men_alloc.hasCall()) {
-    emitCodeI("sw", ra, sp, st_size - 4) state = GEN;
+    emitCodeI("sw", ra, sp, st_size - 4);
   }
+  state = GEN;
   for (auto& bb : function->basic_blocks) {
     visit((BasicBlockIR*)bb.get());
   }
