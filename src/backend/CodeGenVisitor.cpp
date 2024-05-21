@@ -243,7 +243,13 @@ void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
   if (galloc_instr->var->type->tag == IRT_ARRAY) {
     AggregateValueIR* aggre = (AggregateValueIR*)galloc_instr->init_val;
     if (!aggre->arr_elems) {
-      out_file << "  .zero " << galloc_instr->var->type->getSize();
+      out_file << "  .zero " << galloc_instr->var->type->getSize() << std::endl;
+    } else {
+      for (auto* elem : *aggre->arr_elems) {
+        out_file << "  .word ";
+        elem->PrintName();
+        out_file << std::endl;
+      }
     }
   } else {
     out_file << "  .word ";
