@@ -1,10 +1,3 @@
-  .data
-  .text
-  .global x
-x:
-  .text
-  .global init
-init:
   .text
   .global main
 main:

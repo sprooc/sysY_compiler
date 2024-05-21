@@ -5,10 +5,11 @@
 // TODO : fix memory leak
 
 void CodeGenVisitor::visit(ProgramIR* program) {
-  // out_file << "  .data" << std::endl;
-  // for (auto& galloc : program->global_vars) {
-  //   visit((GlobalAllocIR*)galloc.get());
-  // }
+  out_file << "  .data" << std::endl;
+  for (auto& galloc : program->global_vars) {
+    visit((GlobalAllocIR*)galloc.get());
+  }
+
   out_file << "  .text" << std::endl;
   for (auto& function : program->functions) {
     visit((FunctionIR*)function.get());
