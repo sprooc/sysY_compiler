@@ -1,5 +1,5 @@
 *.o
 *.tmp
-build/
-.idea/
-.vscode/
+/build
+/.idea
+/.vscode
