@@ -187,39 +187,46 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
     men_alloc.alloc(load_instr->toString(), 4);
     return;
   }
-
   int src = loadFromMen(load_instr->src);
-  int dmen = men_alloc.getLoc(load_instr->toString());
+  int dst_ptr = loadPtr(load_instr);
+  emitSave(src, dst_ptr, 0);
 
-  if (men_alloc.isDymPtr(load_instr->src->toString())) {
-    int tr = reg_alloc.GetOne();
-    emitLoad(tr, src, 0);
-    emitSave(tr, sp, dmen);
-  } else {
-    emitSave(src, sp, dmen);
-  }
+  // int src = loadFromMen(load_instr->src);
+  // int dmen = men_alloc.getLoc(load_instr->toString());
+
+  // if (men_alloc.isDymPtr(load_instr->src->toString())) {
+  //   int tr = reg_alloc.GetOne();
+  //   emitLoad(tr, src, 0);
+  //   emitSave(tr, sp, dmen);
+  // } else {
+  //   emitSave(src, sp, dmen);
+  // }
   reg_alloc.freeAll();
 }
 
 void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
   if (state == SCAN) return;
   int src = loadFromMen(store_instr->src);
-  if (store_instr->dst->tag == IRV_GALLOC) {
-    int reg = reg_alloc.GetOne();
-    emitCodeIRL("la", reg, ((GlobalAllocIR*)store_instr->dst)->var->name);
-    emitCodeI("sw", src, reg, 0);
-    reg_alloc.freeAll();
-  } else {
-    int dmen = men_alloc.getLoc(store_instr->dst->toString());
-    if (men_alloc.isDymPtr(store_instr->dst->toString())) {
-      int tr = reg_alloc.GetOne();
-      emitLoad(tr, sp, dmen);
-      emitSave(src, tr, 0);
-    } else {
-      emitSave(src, sp, dmen);
-    }
-    reg_alloc.freeAll();
-  }
+  int dst_ptr = loadPtr(store_instr->dst);
+  emitSave(src, dst_ptr, 0);
+  reg_alloc.freeAll();
+
+  // if (store_instr->dst->tag == IRV_GALLOC) {
+  //   int reg = reg_alloc.GetOne();
+  //   emitCodeIRL("la", reg, ((GlobalAllocIR*)store_instr->dst)->var->name);
+  //   emitCodeI("sw", src, reg, 0);
+  //   reg_alloc.freeAll();
+  // } else {
+  //   int dmen = men_alloc.getLoc(store_instr->dst->toString());
+  //   if (men_alloc.isDymPtr(store_instr->dst->toString())) {
+  //     int tr = reg_alloc.GetOne();
+  //     emitLoad(tr, sp, dmen);
+  //     emitSave(src, tr, 0);
+  //   } else {
+  //     emitSave(src, sp, dmen);
+  //   }
+  //   reg_alloc.freeAll();
+  // }
 }
 
 void CodeGenVisitor::visit(JumpInstrIR* jump_instr) {
@@ -372,6 +379,26 @@ int CodeGenVisitor::loadFromMen(ValueIR* value, int reg) {
       emitLoad(reg, sp, loc);
       return reg;
   }
+}
+int CodeGenVisitor::loadPtr(ValueIR* value) {
+  int reg = reg_alloc.GetOne();
+  if (value->tag == IRV_GALLOC) {
+    emitCodeIRL("la", reg, ((GlobalAllocIR*)value)->toString());
+    return reg;
+  }
+  int dmen = men_alloc.getLoc(value->toString());
+  if (men_alloc.isDymPtr(value->toString())) {
+    emitLoad(reg, sp, dmen);
+  } else {
+    if (dmen < 2048) {
+      emitCodeI("addi", reg, sp, dmen);
+    } else {
+      int tr = reg_alloc.GetOne();
+      emitCodeU("li", tr, dmen);
+      emitCodeR("add", reg, sp, tr);
+    }
+  }
+  return reg;
 }
 
 void CodeGenVisitor::emitCodeR(std::string instr, int rd, int rs1, int rs2) {
