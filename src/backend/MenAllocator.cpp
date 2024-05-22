@@ -24,9 +24,8 @@ void MenAllocator::alloc(string name, Type* type) {
 Type* MenAllocator::getType(string name) {
   auto it = type_table->find(name);
   if (it == type_table->end()) {
-    return nullptr;
-    // std::cerr << "Cannot find type of " << name << std::endl;
-    // exit(1);
+    std::cerr << "Cannot find type of " << name << std::endl;
+    exit(1);
   }
   return it->second;
 }
