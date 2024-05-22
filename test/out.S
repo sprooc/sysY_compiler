@@ -32,3 +32,21 @@ L0:
   lw    t1, 0(t0)
   sw    t1, 4(sp)
   lw    t0, 4(sp)
+  li    t2, 4
+  mul   t2, t2, x0
+  add   t0, t0, t2
+  sw    t0, 8(sp)
+  lw    t1, 8(sp)
+  sw    x0, 0(t1)
+  addi  sp, sp, 16
+  ret
+
+  .globl main
+main:
+  addi  sp, sp, 0
+  sw    ra, -4(sp)
+entry:
+  li    a0, 33
+  addi  sp, sp, 0
+  ret
+
