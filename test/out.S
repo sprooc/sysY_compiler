@@ -15,3 +15,5 @@ fun @main(): i32 {
   ret 0
 }
   .data
+  .globl ga
+ga:
