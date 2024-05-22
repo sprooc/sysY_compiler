@@ -190,15 +190,14 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
 
   int src = loadFromMen(load_instr->src);
   int dmen = men_alloc.getLoc(load_instr->toString());
-  // emitCodeI("sw", src, sp, dmen);
-  // Type* t = men_alloc.getType(load_instr->src->toString());
-  // if (t) {
-  //   int tr = reg_alloc.GetOne();
-  //   emitLoad(tr, src, 0);
-  //   emitSave(src, tr, 0);
-  // } else {
-  emitSave(src, sp, dmen);
-  // }
+
+  if (men_alloc.isDymPtr(load_instr->src->toString())) {
+    int tr = reg_alloc.GetOne();
+    emitLoad(tr, src, 0);
+    emitSave(tr, sp, dmen);
+  } else {
+    emitSave(src, sp, dmen);
+  }
   reg_alloc.freeAll();
 }
 
