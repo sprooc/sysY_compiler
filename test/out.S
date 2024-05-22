@@ -19,8 +19,9 @@ entry:
   mul   t2, t2, t1
   add   t0, t0, t2
   sw    t0, 12(sp)
+  li    t0, 1
   lw    t1, 12(sp)
-  sw    x0, 0(t1)
+  sw    t0, 0(t1)
   li    a0, 0
   addi  sp, sp, 16
   ret
