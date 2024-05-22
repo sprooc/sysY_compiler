@@ -1,7 +1,4 @@
   .data
-  .globl arr
-arr:
-  .zero 262144
   .text
   .globl main
 main:
