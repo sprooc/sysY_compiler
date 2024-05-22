@@ -252,7 +252,7 @@ class GetPtrInstrIR : public InstrIR {
   GetPtrInstrIR() { this->tag = IRV_GP; }
   GetPtrInstrIR(ValueIR* p, ValueIR* id, std::string n)
       : ptr(p), index(id), name(n) {
-    this->tag = IRV_GEP;
+    this->tag = IRV_GP;
   }
   std::string toString() const override { return name; }
   void PrintName() const override { out_file << name; }
