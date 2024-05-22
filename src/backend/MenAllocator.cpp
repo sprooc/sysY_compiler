@@ -55,3 +55,6 @@ void MenAllocator::noticeCall(int ps) {
   has_call = true;
   max_ps = std::max(max_ps, ps);
 }
+
+void MenAllocator::setDymPtr(string name);
+bool MenAllocator::isDymPtr(string name);

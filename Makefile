@@ -50,7 +50,7 @@ clean:
 	rm -f $(OBJS)
 
 llvm: test
-	koopac test/out > test/out.ll
+	koopac test/out.S > test/out.ll
 	llvm-as test/out.ll -o test/out.bc
 	lli test/out.bc
 	echo $?

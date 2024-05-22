@@ -1,7 +1,5 @@
-int f() {
-  return 0;
-}
-
 int main() {
-  return f();
+  int arr[2] = {1};
+  int a = 1;
+  return 0;
 }
