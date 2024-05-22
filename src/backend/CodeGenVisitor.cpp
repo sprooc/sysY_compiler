@@ -187,21 +187,23 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
     men_alloc.alloc(load_instr->toString(), 4);
     return;
   }
-  // int src = loadFromMen(load_instr->src);
-  // int dst_ptr = loadPtr(load_instr);
-  // emitSave(src, dst_ptr, 0);
-
-  int src = loadFromMen(load_instr->src);
+  int src_ptr = loadPtr(load_instr->src);
   int dmen = men_alloc.getLoc(load_instr->toString());
-
-  if (men_alloc.isDymPtr(load_instr->src->toString())) {
-    int tr = reg_alloc.GetOne();
-    emitLoad(tr, src, 0);
-    emitSave(tr, sp, dmen);
-  } else {
-    emitSave(src, sp, dmen);
-  }
+  int tr = reg_alloc.GetOne();
+  emitLoad(tr, src_ptr, 0);
+  emitSave(tr, sp, dmen);
   reg_alloc.freeAll();
+  // int src = loadFromMen(load_instr->src);
+  // int dmen = men_alloc.getLoc(load_instr->toString());
+
+  // if (men_alloc.isDymPtr(load_instr->src->toString())) {
+  //   int tr = reg_alloc.GetOne();
+  //   emitLoad(tr, src, 0);
+  //   emitSave(tr, sp, dmen);
+  // } else {
+  //   emitSave(src, sp, dmen);
+  // }
+  // reg_alloc.freeAll();
 }
 
 void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
@@ -211,9 +213,6 @@ void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
   int dst_ptr = loadPtr(store_instr->dst);
   emitSave(src, dst_ptr, 0);
   reg_alloc.freeAll();
-
-
-
 
   // if (store_instr->dst->tag == IRV_GALLOC) {
   //   int reg = reg_alloc.GetOne();
