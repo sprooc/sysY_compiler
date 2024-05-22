@@ -22,8 +22,9 @@ entry:
   lw    t1, 12(sp)
   sw    x0, 0(t1)
   addi  t0, sp, 0
+  li    t1, 1
   li    t2, 4
-  mul   t2, t2, x0
+  mul   t2, t2, t1
   add   t0, t0, t2
   sw    t0, 16(sp)
   lw    t0, 16(sp)
