@@ -3,6 +3,7 @@ void MenAllocator::enterFunction() {
   men_size = 0;
   men_table = std::make_unique<unordered_map<string, int>>();
   type_table = std::make_unique<unordered_map<string, Type*>>();
+  dym_ptr = std::make_unique<unordered_set<string>>();
   has_call = false;
   max_ps = 0;
 }
