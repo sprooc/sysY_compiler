@@ -64,7 +64,7 @@ asmdb: run
 	ld.lld test/out.o -L/opt/lib/riscv32 -lsysy -o test/out
 	qemu-riscv32-static -g 1234 test/out
 
-asmdb: run 
+asm: run 
 	clang test/out.S -g -c -o test/out.o -target riscv32-unknown-linux-elf -march=rv32im -mabi=ilp32
 	ld.lld test/out.o -L/opt/lib/riscv32 -lsysy -o test/out
 	qemu-riscv32-static test/out
