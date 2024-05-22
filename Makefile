@@ -63,5 +63,5 @@ asm: run
 	riscv64-linux-gnu-gcc -g -o test/a.out test/out.S -static
 	# riscv64-unknown-linux-elf-as -o test/out.o test/out  
 	# riscv64-unknown-linux-elf-ld -o test/a.out test/out.o  
-	qemu-riscv64-static -g test/a.out 
+	qemu-riscv64-static -g 1234 test/a.out 
 
