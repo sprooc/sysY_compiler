@@ -81,6 +81,9 @@ void CodeGenVisitor::visit(ValueIR* value) {
     case ValueTag::IRV_GEP:
       visit((GetElemPtrIR*)value);
       break;
+    case ValueTag::IRV_GP:
+      visit((GetPtrInstrIR*)value);
+      break;
     default:
       // assert(0);
       break;
@@ -296,39 +299,36 @@ void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
     out_file << std::endl;
   }
 }
-
-void CodeGenVisitor::visit(GetElemPtrIR* gep_isntr) {
+void CodeGenVisitor::visit(GetElemPtrIR* gep_instr) {
   if (state == SCAN) {
-    men_alloc.alloc(gep_isntr->toString(), 4);
-    men_alloc.setDymPtr(gep_isntr->toString());
+    men_alloc.alloc(gep_instr->toString(), 4);
+    men_alloc.setDymPtr(gep_instr->toString());
     return;
   }
 
-  int reg = loadPtr(gep_isntr->ptr);
-
-  // int src_loc = men_alloc.getLoc(gep_isntr->ptr->toString());
-  // int reg = reg_alloc.GetOne();
-  // if (src_loc < 2048) {
-  //   emitCodeI("addi", reg, sp, src_loc);
-  // } else {
-  //   int tr = reg_alloc.GetOne();
-  //   emitCodeU("li", tr, src_loc);
-  //   emitCodeR("add", reg, sp, tr);
-  // }
+  int reg = loadPtr(gep_instr->ptr);
 
   ArrayType* array_type =
-      (ArrayType*)men_alloc.getType(gep_isntr->ptr->toString());
+      (ArrayType*)men_alloc.getType(gep_instr->ptr->toString());
   int type_size = array_type->elem_type->getSize();
-  int index_r = loadFromMen(gep_isntr->index);
+  int index_r = loadFromMen(gep_instr->index);
   int width_r = reg_alloc.GetOne();
   emitCodeU("li", width_r, type_size);
   emitCodeR("mul", width_r, width_r, index_r);
   emitCodeR("add", reg, reg, width_r);
-  int dmen = men_alloc.getLoc(gep_isntr->toString());
+  int dmen = men_alloc.getLoc(gep_instr->toString());
   // emitCodeI("sw", reg, sp, dmen);
   emitSave(reg, sp, dmen);
-  men_alloc.setType(gep_isntr->toString(), array_type->elem_type.get());
+  men_alloc.setType(gep_instr->toString(), array_type->elem_type.get());
   reg_alloc.freeAll();
+}
+
+void CodeGenVisitor::visit(GetPtrInstrIR* gp_instr) {
+  if (state == SCAN) {
+    men_alloc.alloc(gp_instr->toString(), 4);
+    men_alloc.setDymPtr(gp_instr->toString());
+    return;
+  }
 }
 
 void CodeGenVisitor::emitSave(int rs, int rd, int off) {
