@@ -60,8 +60,8 @@ git:
 	git commit -m "run"
 
 asm: run 
-	riscv64-linux-gnu-gcc -march=rv32im -mabi=ilp32 -g -o test/a.out test/out.S -static -felf32
+	riscv64-linux-gnu-gcc -march=rv32im -mabi=ilp32 -g -o test/a.out test/out.S -static
 	# riscv64-unknown-linux-elf-as -o test/out.o test/out  
 	# riscv64-unknown-linux-elf-ld -o test/a.out test/out.o  
-	qemu-riscv64-static -g 1234 test/a.out 
+	qemu-riscv32-static -g 1234 test/a.out 
 
