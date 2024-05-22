@@ -1,23 +1,19 @@
-  .data
-  .text
-  .globl f
-f:
-  addi  sp, sp, 0
-  sw    ra, -4(sp)
-L0:
-  li    a0, 0
-  addi  sp, sp, 0
-  ret
-
-  .globl main
-main:
-  addi  sp, sp, -16
-  sw    ra, 12(sp)
-entry:
-  call  f
-  sw    a0, 0(sp)
-  lw    a0, 0(sp)
-  lw    ra, 12(sp)
-  addi  sp, sp, 16
-  ret
-
+decl @getint(): i32
+decl @getch(): i32
+decl @getarray(*i32): i32
+decl @putint(i32)
+decl @putch(i32)
+decl @putarray(i32, *i32)
+decl @starttime()
+decl @stoptime()
+fun @main(): i32 {
+%entry:
+  @arr_0 = alloc [i32, 2]
+  %0 = getelemptr @arr_0, 0
+  store 1, %0
+  %1 = getelemptr @arr_0, 1
+  store 0, %1
+  @a_1 = alloc i32
+  store 1, @a_1
+  ret 0
+}

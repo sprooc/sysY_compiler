@@ -212,15 +212,13 @@ void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
     reg_alloc.freeAll();
   } else {
     int dmen = men_alloc.getLoc(store_instr->dst->toString());
-    // emitCodeI("sw", src, sp, dmen);
-    // Type* t = men_alloc.getType(store_instr->dst->toString());
-    // if (t) {
-    //   int tr = reg_alloc.GetOne();
-    //   emitLoad(tr, sp, dmen);
-    //   emitSave(src, tr, 0);
-    // } else {
-    emitSave(src, sp, dmen);
-    // }
+    if (men_alloc.isDymPtr(store_instr->dst->toString())) {
+      int tr = reg_alloc.GetOne();
+      emitLoad(tr, sp, dmen);
+      emitSave(src, tr, 0);
+    } else {
+      emitSave(src, sp, dmen);
+    }
     reg_alloc.freeAll();
   }
 }
@@ -292,6 +290,7 @@ void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
 void CodeGenVisitor::visit(GetElemPtrIR* gep_isntr) {
   if (state == SCAN) {
     men_alloc.alloc(gep_isntr->toString(), 4);
+    men_alloc.setDymPtr(gep_isntr->toString());
     return;
   }
   int src_loc = men_alloc.getLoc(gep_isntr->ptr->toString());
