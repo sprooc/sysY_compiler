@@ -1,9 +1,9 @@
   .data
-  .globl ga
-ga:
+  .globl ga_0
+ga_0:
   .zero 40
-  .globl gb
-gb:
+  .globl gb_1
+gb_1:
   .word 5
   .word 6
   .word 7
