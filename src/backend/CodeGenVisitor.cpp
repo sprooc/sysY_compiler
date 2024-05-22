@@ -299,15 +299,15 @@ void CodeGenVisitor::visit(GetElemPtrIR* gep_isntr) {
     men_alloc.setDymPtr(gep_isntr->toString());
     return;
   }
-  int src_loc = men_alloc.getLoc(gep_isntr->ptr->toString());
-  int reg = reg_alloc.GetOne();
-  if (src_loc < 2048) {
-    emitCodeI("addi", reg, sp, src_loc);
-  } else {
-    int tr = reg_alloc.GetOne();
-    emitCodeU("li", tr, src_loc);
-    emitCodeR("add", reg, sp, tr);
-  }
+  int reg = loadPtr(gep_isntr->ptr);
+  // int reg = reg_alloc.GetOne();
+  // if (src_loc < 2048) {
+  //   emitCodeI("addi", reg, sp, src_loc);
+  // } else {
+  //   int tr = reg_alloc.GetOne();
+  //   emitCodeU("li", tr, src_loc);
+  //   emitCodeR("add", reg, sp, tr);
+  // }
   ArrayType* array_type =
       (ArrayType*)men_alloc.getType(gep_isntr->ptr->toString());
   int type_size = array_type->elem_type->getSize();
