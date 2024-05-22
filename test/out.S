@@ -22,7 +22,7 @@ entry:
   li    t0, 1
   lw    t1, 12(sp)
   sw    t0, 0(t1)
-  li    a0, 0
+  li    a0, 1
   addi  sp, sp, 16
   ret
 
