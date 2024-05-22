@@ -26,9 +26,9 @@ f1d:
   addi  sp, sp, -16
   sw    ra, 12(sp)
 L0:
-  lw    t1, 0(sp)
+  addi  t1, sp, 0
   sw    a0, 0(t1)
-  lw    t0, 0(sp)
+  addi  t0, sp, 0
   lw    t1, 0(t0)
   sw    t1, 4(sp)
   addi  t0, sp, 4

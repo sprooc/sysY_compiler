@@ -191,6 +191,13 @@ void CodeGenVisitor::visit(AllocInstrIR* alloc_instr) {
 void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
   if (state == SCAN) {
     men_alloc.alloc(load_instr->toString(), 4);
+    if (load_instr->src->tag == IRV_ALLOC &&
+        ((AllocInstrIR*)load_instr->src)->var->type->tag == IRT_POINTER) {
+      auto* var = ((AllocInstrIR*)load_instr->src)->var;
+      men_alloc.setType(load_instr->toString(),
+                        ((PointerType*)var->type)->elem_type.get());
+      men_alloc.setDymPtr(load_instr->toString());
+    }
     return;
   }
   int src_ptr = loadPtr(load_instr->src);
@@ -198,6 +205,7 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
   int tr = reg_alloc.GetOne();
   emitLoad(tr, src_ptr, 0);
   emitSave(tr, sp, dmen);
+
   reg_alloc.freeAll();
   // int src = loadFromMen(load_instr->src);
   // int dmen = men_alloc.getLoc(load_instr->toString());
@@ -330,8 +338,22 @@ void CodeGenVisitor::visit(GetPtrInstrIR* gp_instr) {
   if (state == SCAN) {
     men_alloc.alloc(gp_instr->toString(), 4);
     men_alloc.setDymPtr(gp_instr->toString());
+    men_alloc.setType(gp_instr->toString(),
+                      men_alloc.getType(gp_instr->ptr->toString()));
     return;
   }
+
+  int reg = loadPtr(gp_instr->ptr);
+  Type* type = men_alloc.getType(gp_instr->ptr->toString());
+  int type_size = type->getSize();
+  int index_r = loadFromMen(gp_instr->index);
+  int width_r = reg_alloc.GetOne();
+  emitCodeU("li", width_r, type_size);
+  emitCodeR("mul", width_r, width_r, index_r);
+  emitCodeR("add", reg, reg, width_r);
+  int dmen = men_alloc.getLoc(gp_instr->toString());
+  emitSave(reg, sp, dmen);
+  reg_alloc.freeAll();
 }
 
 void CodeGenVisitor::emitSave(int rs, int rd, int off) {
