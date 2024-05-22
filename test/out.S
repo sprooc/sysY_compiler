@@ -31,4 +31,4 @@ L0:
   addi  t0, sp, 0
   lw    t1, 0(t0)
   sw    t1, 4(sp)
-  addi  t0, sp, 4
+  lw    t0, 4(sp)
