@@ -93,7 +93,7 @@ class ParamIR : public ValueIR {
   ParamIR() : ValueIR(IRV_PARAM) {}
   ParamIR(std::string& n, int l) : ValueIR(IRV_PARAM), name(n), loc(l) {}
   ParamIR(Type* t, std::string& n, int l)
-      : ValueIR(IRV_PARAM), name(n), type(std::unique_ptr<Type>(t)),loc(l) {}
+      : ValueIR(IRV_PARAM), name(n), type(std::unique_ptr<Type>(t)), loc(l) {}
   void PrintName() const override { out_file << "@" << name; };
   void PrintIR() const override {
     out_file << "@" << name << ": " << type->toString();
@@ -191,7 +191,7 @@ class AggregateValueIR : public ValueIR {
     }
   }
   void PrintIR() const override {
-    if(!arr_elems) {
+    if (!arr_elems) {
       out_file << "zeroinit";
     } else {
       dfsPrint(0, arr_shape->size() - 1, 0, arr_elems->size());
@@ -296,6 +296,7 @@ class GlobalAllocIR : public ValueIR {
     out_file << " = alloc " << var->type->toString() << ", ";
     init_val->PrintName();
   }
+  std::string toString() const override { return var->toString(); }
 };
 
 class StoreInstrIR : public InstrIR {
