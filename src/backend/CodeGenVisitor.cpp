@@ -181,9 +181,9 @@ void CodeGenVisitor::visit(BinaryOpInstrIR* binary_op_instr) {
 
 void CodeGenVisitor::visit(AllocInstrIR* alloc_instr) {
   if (state == SCAN) {
-    if (alloc_instr->var->type->tag == IRT_POINTER) {
-      men_alloc.setDymPtr(alloc_instr->toString());
-    }
+    // if (alloc_instr->var->type->tag == IRT_POINTER) {
+    //   men_alloc.setDymPtr(alloc_instr->toString());
+    // }
     men_alloc.alloc(alloc_instr->toString(), alloc_instr->var->type);
     return;
   }
