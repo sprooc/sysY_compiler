@@ -1,3 +1,19 @@
+decl @getint(): i32
+decl @getch(): i32
+decl @getarray(*i32): i32
+decl @putint(i32)
+decl @putch(i32)
+decl @putarray(i32, *i32)
+decl @starttime()
+decl @stoptime()
+global @ga_0 = alloc [i32, 10], zeroinit
+global @gb_1 = alloc [[i32, 3], 2], {{5, 6, 7}, {8, 0, 0}}
+fun @main(): i32 {
+%entry:
+  %0 = getelemptr @ga_0, 0
+  store 0, %0
+  ret 0
+}
   .data
   .globl ga
 ga:
@@ -13,143 +29,6 @@ gb:
   .text
   .globl main
 main:
-  addi  sp, sp, -272
-  sw    ra, 268(sp)
+  addi  sp, sp, -16
+  sw    ra, 12(sp)
 entry:
-  addi  t0, sp, 40
-  li    t2, 12
-  mul   t2, t2, x0
-  add   t0, t0, t2
-  sw    t0, 64(sp)
-  addi  t0, sp, 64
-  li    t2, 4
-  mul   t2, t2, x0
-  add   t0, t0, t2
-  sw    t0, 68(sp)
-  li    t0, 1
-  lw    t1, 68(sp)
-  sw    t0, 0(t1)
-  addi  t0, sp, 40
-  li    t2, 12
-  mul   t2, t2, x0
-  add   t0, t0, t2
-  sw    t0, 72(sp)
-  addi  t0, sp, 72
-  li    t1, 1
-  li    t2, 4
-  mul   t2, t2, t1
-  add   t0, t0, t2
-  sw    t0, 76(sp)
-  li    t0, 2
-  lw    t1, 76(sp)
-  sw    t0, 0(t1)
-  addi  t0, sp, 40
-  li    t2, 12
-  mul   t2, t2, x0
-  add   t0, t0, t2
-  sw    t0, 80(sp)
-  addi  t0, sp, 80
-  li    t1, 2
-  li    t2, 4
-  mul   t2, t2, t1
-  add   t0, t0, t2
-  sw    t0, 84(sp)
-  li    t0, 3
-  lw    t1, 84(sp)
-  sw    t0, 0(t1)
-  addi  t0, sp, 40
-  li    t1, 1
-  li    t2, 12
-  mul   t2, t2, t1
-  add   t0, t0, t2
-  sw    t0, 88(sp)
-  addi  t0, sp, 88
-  li    t2, 4
-  mul   t2, t2, x0
-  add   t0, t0, t2
-  sw    t0, 92(sp)
-  li    t0, 4
-  lw    t1, 92(sp)
-  sw    t0, 0(t1)
-  addi  t0, sp, 40
-  li    t1, 1
-  li    t2, 12
-  mul   t2, t2, t1
-  add   t0, t0, t2
-  sw    t0, 96(sp)
-  addi  t0, sp, 96
-  li    t1, 1
-  li    t2, 4
-  mul   t2, t2, t1
-  add   t0, t0, t2
-  sw    t0, 100(sp)
-  lw    t1, 100(sp)
-  sw    x0, 0(t1)
-  addi  t0, sp, 40
-  li    t1, 1
-  li    t2, 12
-  mul   t2, t2, t1
-  add   t0, t0, t2
-  sw    t0, 104(sp)
-  addi  t0, sp, 104
-  li    t1, 2
-  li    t2, 4
-  mul   t2, t2, t1
-  add   t0, t0, t2
-  sw    t0, 108(sp)
-  lw    t1, 108(sp)
-  sw    x0, 0(t1)
-  sw    x0, 112(sp)
-  sw    x0, 116(sp)
-  j     L1
-L1:
-  lw    t0, 116(sp)
-  sw    t0, 120(sp)
-  lw    t0, 120(sp)
-  li    t1, 2
-  slt   t0, t0, t1
-  sw    t0, 124(sp)
-  lw    t0, 124(sp)
-  bnez  t0, L2
-  j     L0
-L2:
-  sw    x0, 128(sp)
-  j     L4
-L4:
-  lw    t0, 128(sp)
-  sw    t0, 132(sp)
-  lw    t0, 132(sp)
-  li    t1, 3
-  slt   t0, t0, t1
-  sw    t0, 136(sp)
-  lw    t0, 136(sp)
-  bnez  t0, L5
-  j     L3
-L5:
-  lw    t0, 112(sp)
-  sw    t0, 140(sp)
-  lw    t0, 116(sp)
-  sw    t0, 144(sp)
-  addi  t0, sp, 40
-  lw    t1, 144(sp)
-  li    t2, 12
-  mul   t2, t2, t1
-  add   t0, t0, t2
-  sw    t0, 148(sp)
-  lw    t0, 128(sp)
-  sw    t0, 152(sp)
-  addi  t0, sp, 148
-  lw    t1, 152(sp)
-  li    t2, 4
-  mul   t2, t2, t1
-  add   t0, t0, t2
-  sw    t0, 156(sp)
-  lw    t0, 156(sp)
-  lw    t1, 0(t0)
-  sw    t1, 160(sp)
-  lw    t0, 140(sp)
-  lw    t1, 160(sp)
-  add   t0, t0, t1
-  sw    t0, 164(sp)
-  lw    t0, 116(sp)
-  sw    t0, 168(sp)

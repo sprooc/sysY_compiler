@@ -52,7 +52,7 @@ int MenAllocator::getLoc(string name) {
   auto it = men_table->find(name);
   if (it == men_table->end()) {
     std::cerr << "Cannot find: " << name << std::endl;
-    exit(1);
+    // exit(1);
   }
   return it->second + std::max(max_ps - 8, 0) * 4;
 }
