@@ -19,7 +19,7 @@ class MenAllocator {
   int max_ps;
 
  public:
-  MenAllocator() {}
+  MenAllocator();
   void enterFunction();
   void exitFunxtion();
   void alloc(string name, int size);
