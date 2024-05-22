@@ -1,4 +1,5 @@
 #include "MenAllocator.h"
+#include <cassert>
 void MenAllocator::enterFunction() {
   men_size = 0;
   men_table = std::make_unique<unordered_map<string, int>>();
@@ -31,6 +32,7 @@ Type* MenAllocator::getType(string name) {
 }
 
 void MenAllocator::setType(string name, Type* type) {
+  assert(type_table);
   if (type_table->find(name) == type_table->end()) {
     type_table->emplace(name, type);
   }
