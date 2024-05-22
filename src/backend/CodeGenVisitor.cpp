@@ -207,26 +207,30 @@ void CodeGenVisitor::visit(LoadInstrIR* load_instr) {
 void CodeGenVisitor::visit(StoreInstrIR* store_instr) {
   if (state == SCAN) return;
   int src = loadFromMen(store_instr->src);
-  // int dst_ptr = loadPtr(store_instr->dst);
-  // emitSave(src, dst_ptr, 0);
-  // reg_alloc.freeAll();
 
-  if (store_instr->dst->tag == IRV_GALLOC) {
-    int reg = reg_alloc.GetOne();
-    emitCodeIRL("la", reg, ((GlobalAllocIR*)store_instr->dst)->var->name);
-    emitCodeI("sw", src, reg, 0);
-    reg_alloc.freeAll();
-  } else {
-    int dmen = men_alloc.getLoc(store_instr->dst->toString());
-    if (men_alloc.isDymPtr(store_instr->dst->toString())) {
-      int tr = reg_alloc.GetOne();
-      emitLoad(tr, sp, dmen);
-      emitSave(src, tr, 0);
-    } else {
-      emitSave(src, sp, dmen);
-    }
-    reg_alloc.freeAll();
-  }
+  int dst_ptr = loadPtr(store_instr->dst);
+  emitSave(src, dst_ptr, 0);
+  reg_alloc.freeAll();
+
+
+
+
+  // if (store_instr->dst->tag == IRV_GALLOC) {
+  //   int reg = reg_alloc.GetOne();
+  //   emitCodeIRL("la", reg, ((GlobalAllocIR*)store_instr->dst)->var->name);
+  //   emitCodeI("sw", src, reg, 0);
+  //   reg_alloc.freeAll();
+  // } else {
+  //   int dmen = men_alloc.getLoc(store_instr->dst->toString());
+  //   if (men_alloc.isDymPtr(store_instr->dst->toString())) {
+  //     int tr = reg_alloc.GetOne();
+  //     emitLoad(tr, sp, dmen);
+  //     emitSave(src, tr, 0);
+  //   } else {
+  //     emitSave(src, sp, dmen);
+  //   }
+  //   reg_alloc.freeAll();
+  // }
 }
 
 void CodeGenVisitor::visit(JumpInstrIR* jump_instr) {
