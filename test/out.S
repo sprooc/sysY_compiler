@@ -16,4 +16,3 @@ main:
   addi  sp, sp, -16
   sw    ra, 12(sp)
 entry:
-  la    t0, ga_0
