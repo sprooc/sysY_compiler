@@ -275,9 +275,9 @@ void CodeGenVisitor::visit(CallInstrIR* call_instr) {
 }
 
 void CodeGenVisitor::visit(GlobalAllocIR* galloc_instr) {
-  out_file << "  .globl " << galloc_instr->var->name << std::endl;
+  out_file << "  .globl " << galloc_instr->toString() << std::endl;
   int size = galloc_instr->var->type->getSize();
-  outLabel(galloc_instr->var->name);
+  outLabel(galloc_instr->toString());
   if (galloc_instr->var->type->tag == IRT_ARRAY) {
     men_alloc.setType(galloc_instr->toString(), galloc_instr->var->type);
     AggregateValueIR* aggre = (AggregateValueIR*)galloc_instr->init_val;
